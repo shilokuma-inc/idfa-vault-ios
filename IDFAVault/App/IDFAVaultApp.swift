@@ -45,6 +45,11 @@ struct IDFAVaultApp: App {
         .onChange(of: scenePhase) { _, phase in
             model.scenePhaseChanged(phase)
         }
+        #if os(visionOS)
+        // ガラスの背景を使わず、面取りの板を描く（角丸を使わないため）
+        .windowStyle(.plain)
+        .defaultSize(width: 820, height: 600)
+        #endif
         #endif
     }
 }
