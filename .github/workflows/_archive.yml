@@ -137,7 +137,7 @@ jobs:
             # macOS はアドホック署名でアーカイブする。CODE_SIGNING_ALLOWED=NO だと App Sandbox などのエンタイトルメント
             # （ENABLE_APP_SANDBOX から作られる）が実行ファイルに埋め込まれず、Export で配布用に署名し直しても sandbox の無いアプリになる
             # （Mac App Store は sandbox を必須にしている）。配布用の署名は iOS と同じく Export で行う。
-            # Manual のアドホック署名では iCloud の entitlement を付けない（Configs/Project.xcconfig）ので、次の手順で足す
+            # アドホック署名（IDFAVAULT_ADHOC_SIGNING=YES）では iCloud の entitlement を付けない（Configs/Project.xcconfig）ので、次の手順で足す
             xcodebuild archive \
               -project "$PROJECT_NAME.xcodeproj" \
               -scheme "$SCHEME" \
@@ -146,7 +146,8 @@ jobs:
               -archivePath "$RUNNER_TEMP/build.xcarchive" \
               CODE_SIGN_IDENTITY=- \
               CODE_SIGN_STYLE=Manual \
-              PROVISIONING_PROFILE_SPECIFIER=
+              PROVISIONING_PROFILE_SPECIFIER= \
+              IDFAVAULT_ADHOC_SIGNING=YES
           else
             # iOS・visionOS は署名せずにアーカイブする。entitlement（iCloud）は次の手順で埋め込む
             xcodebuild archive \

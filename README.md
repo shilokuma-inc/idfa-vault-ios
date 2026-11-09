@@ -132,7 +132,7 @@ macOS・visionOS のアップロードは、App Store Connect のアプリにそ
 3. CloudKit Console の Development 環境に、レコードタイプ `DeviceIDFA` とフィールド（`deviceID`・`deviceName`・`platform`・`idfa`・`attStatus` は String、`updatedAt` は Date/Time）を作り、Deploy Schema Changes で Production に反映する。TestFlight と App Store の版は Production を使う
 
 - 署名せずに作った archive には entitlement が入らないため、`_archive.yml` が archive の後に [Tools/embed_archive_entitlements.py](Tools/embed_archive_entitlements.py) でアドホック署名して iCloud の entitlement を埋め込み、Export した IPA・pkg に残ったかを確かめます。App ID の iCloud が無効だと、この確認で止まります
-- macOS は iCloud の entitlement を profile の無いアドホック署名で付けると起動できないため、CI のテストと archive（`CODE_SIGN_STYLE=Manual`）では付けません（[Configs/Project.xcconfig](Configs/Project.xcconfig)）
+- macOS は iCloud の entitlement を profile の無いアドホック署名で付けると起動できないため、CI のテストと archive のアドホック署名（`IDFAVAULT_ADHOC_SIGNING=YES`）では付けません（[Configs/Project.xcconfig](Configs/Project.xcconfig)）
 
 #### TestFlight の内部テスター
 

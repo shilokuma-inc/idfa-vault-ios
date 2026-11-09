@@ -44,7 +44,8 @@ xcodebuild test -project IDFAVault.xcodeproj -scheme IDFAVault \
 xcodebuild test -project IDFAVault.xcodeproj -scheme IDFAVault -destination 'platform=macOS,arch=arm64' \
   -derivedDataPath <リポジトリの外> -skipPackagePluginValidation -skipMacroValidation \
   -skip-testing:IDFAVaultUITests -parallel-testing-enabled NO \
-  CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= PROVISIONING_PROFILE_SPECIFIER= ENABLE_APP_SANDBOX=NO
+  CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= PROVISIONING_PROFILE_SPECIFIER= \
+  IDFAVAULT_ADHOC_SIGNING=YES ENABLE_APP_SANDBOX=NO
 # visionOS（ビルドだけ）
 xcodebuild build -project IDFAVault.xcodeproj -scheme IDFAVault -destination 'generic/platform=visionOS Simulator' \
   -derivedDataPath <リポジトリの外> -skipPackagePluginValidation -skipMacroValidation CODE_SIGNING_ALLOWED=NO

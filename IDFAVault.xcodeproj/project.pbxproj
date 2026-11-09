@@ -448,7 +448,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = IDFAVault/IDFAVault.entitlements;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = IDFAVault/IDFAVault.entitlements;
-				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "$(IDFAVAULT_MACOS_ENTITLEMENTS_$(CODE_SIGN_STYLE))";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "$(IDFAVAULT_MACOS_ENTITLEMENTS_$(IDFAVAULT_ADHOC_SIGNING))";
 				"CODE_SIGN_ENTITLEMENTS[sdk=xros*]" = IDFAVault/IDFAVault.entitlements;
 				"CODE_SIGN_ENTITLEMENTS[sdk=xrsimulator*]" = IDFAVault/IDFAVault.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -487,7 +487,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = IDFAVault/IDFAVault.entitlements;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = IDFAVault/IDFAVault.entitlements;
-				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "$(IDFAVAULT_MACOS_ENTITLEMENTS_$(CODE_SIGN_STYLE))";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "$(IDFAVAULT_MACOS_ENTITLEMENTS_$(IDFAVAULT_ADHOC_SIGNING))";
 				"CODE_SIGN_ENTITLEMENTS[sdk=xros*]" = IDFAVault/IDFAVault.entitlements;
 				"CODE_SIGN_ENTITLEMENTS[sdk=xrsimulator*]" = IDFAVault/IDFAVault.entitlements;
 				CODE_SIGN_STYLE = Automatic;

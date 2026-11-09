@@ -24,8 +24,9 @@ MACOSX_DEPLOYMENT_TARGET = 14.0
 XROS_DEPLOYMENT_TARGET = 1.0
 
 // macOS の entitlements。iCloud（CloudKit）は provisioning profile が要る entitlement で、profile の無いアドホック署名で付けると
-// 起動時にシステムに止められる。CI のテストと archive のアドホック署名は CODE_SIGN_STYLE=Manual にするので、
-// 自動の署名（Xcode が profile を用意する）のときだけ iCloud を付ける。配布（TestFlight・App Store）の archive には、
+// 起動時にシステムに止められる。CI のテストと archive のアドホック署名では IDFAVAULT_ADHOC_SIGNING=YES を渡し、iCloud を付けない。
+// それ以外（Xcode の自動の署名・profile を指定した手動の署名）では付ける。配布（TestFlight・App Store）の archive には、
 // _archive.yml が archive の後に Tools/embed_archive_entitlements.py で足す。iOS・visionOS は pbxproj で常に付ける
-IDFAVAULT_MACOS_ENTITLEMENTS_Automatic = IDFAVault/IDFAVault.entitlements
-IDFAVAULT_MACOS_ENTITLEMENTS_Manual =
+IDFAVAULT_ADHOC_SIGNING = NO
+IDFAVAULT_MACOS_ENTITLEMENTS_NO = IDFAVault/IDFAVault.entitlements
+IDFAVAULT_MACOS_ENTITLEMENTS_YES =

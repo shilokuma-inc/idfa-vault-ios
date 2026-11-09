@@ -8,7 +8,7 @@
 
 ## ビルド・テスト
 
-- Xcode 26.6 では、iOS Simulator のビルドは iCloud の entitlement を付けたまま「Sign to Run Locally」で通り、Unit テストも流れる（profile は要らない）。macOS はアドホック署名に iCloud の entitlement を付けると起動できないため、`CODE_SIGN_STYLE=Manual` のときは付けない（2026-11-10）
+- Xcode 26.6 では、iOS Simulator のビルドは iCloud の entitlement を付けたまま「Sign to Run Locally」で通り、Unit テストも流れる（profile は要らない）。macOS はアドホック署名に iCloud の entitlement を付けると起動できないため、アドホック署名（`IDFAVAULT_ADHOC_SIGNING=YES`）のときは付けない（2026-11-10）
 - GitHub Actions の `macos-26` のイメージには Xcode 26.6 用の visionOS のランタイムが入っていて、`generic/platform=visionOS Simulator` のビルドにダウンロードは要らない（2026-11-10）
 
 ## 配布

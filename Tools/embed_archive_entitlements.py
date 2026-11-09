@@ -11,9 +11,9 @@ TestFlight・App Store の版で CloudKit が使えない。macOS は iCloud の
 
 - iOS・visionOS は `CODE_SIGNING_ALLOWED=NO` でアーカイブする。署名の無い .app を、ビルドの設定（`xcodebuild -showBuildSettings`）で
   `$(VAR)` を展開した `CODE_SIGN_ENTITLEMENTS` でアドホック署名する
-- macOS はアドホック署名（`CODE_SIGN_STYLE=Manual`）でアーカイブする（署名しないと、`ENABLE_APP_SANDBOX` などから作られる
-  entitlement が埋め込まれない）。`CODE_SIGN_ENTITLEMENTS` は自動の署名のときだけ iCloud のファイルになる（`Configs/Project.xcconfig`）ので、
-  ここではプロジェクトの既定（Automatic）の設定で読み、archive の署名の entitlement に足して署名し直す
+- macOS はアドホック署名（`CODE_SIGN_STYLE=Manual`・`IDFAVAULT_ADHOC_SIGNING=YES`）でアーカイブする（署名しないと、`ENABLE_APP_SANDBOX`
+  などから作られる entitlement が埋め込まれない）。アドホック署名では `CODE_SIGN_ENTITLEMENTS` が空になる（`Configs/Project.xcconfig`）ので、
+  ここではプロジェクトの既定（`IDFAVAULT_ADHOC_SIGNING=NO`）の設定で読み、archive の署名の entitlement に足して署名し直す
 
 値は Export が配布用の profile に合わせて書き換える（App Store なら iCloud の環境は Production）。
 .app の中に署名の要るもの（App Extension・Framework）を足したら、それぞれを先に署名する必要がある（codesign が止まって分かる）。

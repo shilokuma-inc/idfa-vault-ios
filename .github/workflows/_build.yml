@@ -99,7 +99,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO
 
       - name: Test on macOS
-        # ランナーには署名用の証明書が無いためアドホック署名にする（CODE_SIGN_STYLE=Manual のときは iCloud の entitlement を付けない。
+        # ランナーには署名用の証明書が無いためアドホック署名にする（IDFAVAULT_ADHOC_SIGNING=YES で iCloud の entitlement を付けない。
         # Configs/Project.xcconfig）。App Sandbox を有効にしたままアドホック署名すると test runner がアプリに接続できずに止まるため、
         # テストのときだけ無効にする
         if: ${{ !inputs.ui-tests }}
@@ -116,6 +116,7 @@ jobs:
             CODE_SIGN_STYLE=Manual \
             DEVELOPMENT_TEAM= \
             PROVISIONING_PROFILE_SPECIFIER= \
+            IDFAVAULT_ADHOC_SIGNING=YES \
             ENABLE_APP_SANDBOX=NO
 
       - name: Build for macOS
