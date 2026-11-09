@@ -12,6 +12,51 @@ struct LockView: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
+        #if os(macOS)
+        macBody
+        #else
+        phoneBody
+        #endif
+    }
+
+    /// Mac のロック画面（デザインの MacLock）。中央に寄せ、ボタンを横に並べる
+    private var macBody: some View {
+        VStack(spacing: 0) {
+            LockHeading(titleSize: 32)
+            BiometryPlate(symbolName: model.biometry.symbolName, size: 160, chamfer: 46, rimWidth: 8)
+                .padding(.top, 40)
+            statusText
+                .padding(.top, 20)
+            HStack(spacing: 12) {
+                Button {
+                    Task { await model.unlock() }
+                } label: {
+                    Text(model.biometry.unlockTitle)
+                        .font(.system(size: 14, weight: .bold))
+                }
+                .buttonStyle(.metal(.primary, chamfer: 10, minHeight: 41, fillsWidth: false))
+                .keyboardShortcut(.defaultAction)
+                .accessibilityIdentifier("unlock")
+                Button {
+                    Task { await model.unlock() }
+                } label: {
+                    Text(BiometryKind.passcodeButtonTitle)
+                        .font(.system(size: 14, weight: .semibold))
+                }
+                .buttonStyle(.metal(.secondary, chamfer: 10, minHeight: 41, fillsWidth: false))
+            }
+            .disabled(model.isAuthenticating)
+            .padding(.top, 12)
+            Text("Macs without Touch ID unlock with your login password")
+                .font(.caption)
+                .foregroundStyle(HeatTint.tertiaryText)
+                .padding(.top, 22)
+        }
+        .padding(40)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var phoneBody: some View {
         GeometryReader { proxy in
             ScrollView {
                 VStack(spacing: 0) {

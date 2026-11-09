@@ -13,6 +13,31 @@ struct IDFAVaultApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
+        #if os(macOS)
+        // Mac はウインドウを 1 つにする（メニューバーの「ウインドウを開く」で開き直す）
+        Window(Text(verbatim: "IDFA Vault"), id: MenuBarContent.mainWindowID) {
+            RootView()
+                .environment(model)
+        }
+        .defaultSize(width: 1180, height: 740)
+        .commands {
+            IdentifierCommands(model: model)
+        }
+
+        Settings {
+            MacSettingsView()
+                .environment(model)
+        }
+
+        MenuBarExtra {
+            MenuBarContent()
+                .environment(model)
+        } label: {
+            Image(systemName: "lock.shield")
+                .accessibilityLabel(Text(verbatim: "IDFA Vault"))
+        }
+        .menuBarExtraStyle(.window)
+        #else
         WindowGroup {
             RootView()
                 .environment(model)
@@ -20,5 +45,6 @@ struct IDFAVaultApp: App {
         .onChange(of: scenePhase) { _, phase in
             model.scenePhaseChanged(phase)
         }
+        #endif
     }
 }

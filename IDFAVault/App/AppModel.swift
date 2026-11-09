@@ -38,6 +38,8 @@ final class AppModel {
     var isCapturingScreen = false
     /// コピーした回数。触覚フィードバックと「コピーしました」の表示のきっかけに使う
     private(set) var copyCount = 0
+    /// この端末の表示名（iOS はモデル名、Mac はコンピュータ名）。読み終わるまでは nil
+    private(set) var ownDeviceName: String?
 
     @ObservationIgnored private let authenticator: any Authenticating
     @ObservationIgnored private let tracking: any TrackingProviding
@@ -45,7 +47,6 @@ final class AppModel {
     @ObservationIgnored private let trackingPromptDelay: Duration
     @ObservationIgnored private let deviceInfo: any DeviceInfoProviding
     @ObservationIgnored private let syncRefreshInterval: Duration
-    @ObservationIgnored private var ownDeviceName: String?
     /// 前面でロックを解除しているあいだ、他の端末の一覧を読み直し続けるタスク
     @ObservationIgnored private var refreshLoop: Task<Void, Never>?
     /// バックグラウンドに移った時刻。戻ったときに自動ロックの時間を過ぎたかを見る
@@ -70,6 +71,13 @@ final class AppModel {
         if dependencies.startsUnlocked {
             refreshIdentifier()
             Task { await startSyncing() }
+        }
+        Task { await loadOwnDeviceName() }
+    }
+
+    private func loadOwnDeviceName() async {
+        if ownDeviceName == nil {
+            ownDeviceName = await deviceInfo.displayName()
         }
     }
 
@@ -112,6 +120,10 @@ final class AppModel {
             isInForeground = false
         case .background:
             isInForeground = false
+            // Mac の Touch ID・パスワードのダイアログは、アプリを非アクティブにする。本人確認の途中はロックの判定に使わない
+            guard !isAuthenticating else {
+                return
+            }
             stopRefreshLoop()
             if backgroundedAt == nil {
                 backgroundedAt = now
@@ -153,6 +165,20 @@ final class AppModel {
         // 起動ごと（ロックを解除するたび）に、この端末のレコードを書いて一覧を読み直す（仕様書 3.4）
         Task { await startSyncing() }
         await requestTrackingIfNeeded()
+    }
+
+    /// メニューバーを開いたときの本人確認（Mac。仕様書 4 章）。メインのウインドウのロックは変えない
+    func authenticateForMenuBar() async -> Bool {
+        biometry = authenticator.biometryKind()
+        let outcome = await authenticator.authenticate(
+            reason: String(localized: "Verify your identity to show your advertising identifier.")
+        )
+        guard outcome == .success else {
+            return false
+        }
+        refreshTracking()
+        Task { await devices.refresh() }
+        return true
     }
 
     private func lock() {
@@ -239,9 +265,7 @@ final class AppModel {
         guard settings.syncsThisDevice, supportsOwnIdentifier else {
             return nil
         }
-        if ownDeviceName == nil {
-            ownDeviceName = await deviceInfo.displayName()
-        }
+        await loadOwnDeviceName()
         return DeviceRecord(
             id: deviceInfo.deviceID,
             name: ownDeviceName ?? "",

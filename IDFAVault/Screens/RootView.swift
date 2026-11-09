@@ -37,19 +37,75 @@ struct RootView: View {
         .sceneCaptureObserver { isCapturing in
             model.isCapturingScreen = isCapturing
         }
+        #if os(macOS)
+        .macWindowBehavior(model: model)
+        .onAppear {
+            // 起動したときの「アクティブになった」通知は、画面ができる前に届いて受け取れないことがある
+            if NSApplication.shared.isActive {
+                model.scenePhaseChanged(.active)
+            }
+        }
+        .toolbar {
+            if !model.isLocked {
+                MacToolbar()
+            }
+        }
+        .frame(minWidth: 860, minHeight: 560)
+        #else
         .onAppear {
             // 起動したときの active は App の onChange に届かないことがあるので、ここでも渡す
             model.scenePhaseChanged(scenePhase)
         }
+        #endif
     }
 }
 
-/// ロックを解除したあとの画面。端末ごとのレイアウトはここで切り替える
+/// ロックを解除したあとの画面。端末ごとのレイアウトはここで切り替える（iPhone の画面を引き伸ばさない）
 struct MainView: View {
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    #endif
+
     var body: some View {
+        #if os(macOS)
+        DeviceBrowserView()
+        #elseif os(iOS)
+        // iPad でも、Split View などで幅が狭いときは iPhone のレイアウトにする
+        if UIDevice.current.userInterfaceIdiom == .pad, horizontalSizeClass == .regular {
+            DeviceBrowserView()
+        } else {
+            PhoneHomeView()
+        }
+        #else
         PhoneHomeView()
+        #endif
     }
 }
+
+#if os(macOS)
+/// Mac のツールバーのロック・設定（デザインの MacMain）
+private struct MacToolbar: ToolbarContent {
+    @Environment(AppModel.self) private var model
+    @Environment(\.openSettings) private var openSettings
+
+    var body: some ToolbarContent {
+        ToolbarItemGroup(placement: .primaryAction) {
+            Button {
+                model.lockNow()
+            } label: {
+                Label("Lock Now", systemImage: "lock")
+            }
+            .help(Text("Lock Now"))
+            Button {
+                openSettings()
+            } label: {
+                Label("Settings", systemImage: "slider.horizontal.3")
+            }
+            .help(Text("Settings"))
+        }
+    }
+}
+#endif
 
 /// 内容を隠した画面。アプリスイッチャーのスナップショットと、画面収録・ミラーリング中に重ねる
 struct PrivacyCover: View {
