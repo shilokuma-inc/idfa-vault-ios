@@ -187,11 +187,18 @@ struct DeviceSyncTests {
 
     @Test
     func cloudKitRecordWithoutIdentifierIsEmpty() throws {
-        let record = DeviceRecord(id: "a", name: "iPad mini", platform: .iPadOS, identifier: nil, trackingStatus: .denied, updatedAt: Self.now)
+        let record = DeviceRecord(
+            id: "a",
+            name: "iPad mini",
+            platform: .iPadOS,
+            identifier: nil,
+            trackingStatus: .denied,
+            updatedAt: Self.now
+        )
 
         let ckRecord = CloudKitDeviceSync.makeRecord(record)
 
-        #expect(ckRecord["idfa"] as? String == "")
+        #expect((ckRecord["idfa"] as? String)?.isEmpty == true)
         #expect(try #require(CloudKitDeviceSync.makeDeviceRecord(ckRecord)).identifier == nil)
     }
 
