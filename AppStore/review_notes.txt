@@ -1,21 +1,28 @@
-TODO: アプリの名前 - Notes for App Review
-TODO: 最初の審査で Apple が求める 6 項目（Guideline 2.1 - Information Needed）への回答。英語で書き、TODO: の行をすべて書き換える（上限 4000 字）。書き方の例は shilokuma-inc/numer0n-lens-ios の AppStore/review_notes.txt
+IDFA Vault - Notes for App Review
 
 1. SCREEN RECORDING
-A screen recording from a physical iPhone running the latest iOS is attached to the App Review Information. It starts by launching the app and shows the typical flow: TODO: 映す画面を順に書く（例: tutorial, creating an item, editing it, settings）.
-TODO: アカウントの登録・ログイン・アカウントの削除、ユーザーの投稿（通報とブロック）、課金があれば、動画にも映してここに書く。無ければ次の 1 文にする: The app has no account registration, login, user-generated content, paid content, or In-App Purchases.
+A screen recording from a physical iPhone running the latest iOS is attached to the App Review Information. It starts by launching the app and shows the typical flow: the lock screen and Face ID, the App Tracking Transparency prompt, the home screen with this device's IDFA, copying and sharing it, the list of the user's other devices synced through iCloud, settings, and locking the app again.
+The app has no account registration, login, user-generated content, paid content, or In-App Purchases.
 
 2. PURPOSE AND TARGET AUDIENCE
-TODO: 何をするアプリか・誰のためのアプリか・どんな困りごとを解決し、どんな価値があるか。
+IDFA Vault shows the device's advertising identifier (IDFA) so that the user can copy it. It is for developers who register test devices in advertising SDKs, and for people who are asked for their IDFA by a carrier or a service.
+The IDFA is used only to display it on screen and to save it to the user's own iCloud private database. It is never used for advertising or tracking. The app contains no ads, analytics, or third-party SDKs, and has no server. The developer cannot access any user data.
+To protect the identifier, the app always asks for Face ID, Touch ID, or Optic ID (or the device passcode) at launch and when it returns from the background.
 
 3. HOW TO ACCESS THE MAIN FEATURES
-TODO: 主な機能までの手順を番号付きで書く。ログインやサンプルファイルが要らなければ、まず No login, account, credentials, or sample files are required. と書く。UI が英語でなければ、ボタンの文言を原文のまま引用し、[角括弧] で英訳を添える。ログインが要るなら app_info.json の review.demoAccountRequired を true にし、デモアカウントは Secrets で渡す（ここには書かない）。
+No login, account, credentials, or sample files are required.
+1. Launch the app and authenticate with Face ID (or the passcode).
+2. Allow tracking in the App Tracking Transparency prompt. The permission is used only to read the IDFA and show it on screen; without it, iOS returns all zeros and the app shows how to allow it in Settings.
+3. On the home screen, tap "Copy" to copy the IDFA (it is cleared from the clipboard after 60 seconds) or "Share" to share it.
+4. Open IDFA Vault on another device signed in with the same Apple Account. Its IDFA appears under "SAME APPLE ID" within about 20 seconds. Tap a row to show all digits.
+5. Tap the settings button (top right) to change the auto-lock timing, masking, screen recording protection, and iCloud sync, or to delete all synced data.
+On iPad and Mac, the devices are listed in a sidebar and the IDFA can also be shown as a QR code. On Mac, the menu bar item asks for Touch ID or the password each time it opens.
 
 4. EXTERNAL SERVICES
-TODO: 主な機能のために使う外部サービス（データ提供元・認証・決済・解析・広告・AI など）を挙げる。無ければ None. The app works entirely offline. のように書く。
+None other than Apple's CloudKit. Each device writes one record (an app-generated device UUID, the device model name, the platform, the IDFA, and the tracking permission status) to the user's own iCloud private database, so that the user's devices can show each other's IDFA. The public and shared databases are not used. The user can turn sync off or delete all synced data in Settings.
 
 5. REGIONAL DIFFERENCES
-TODO: 地域による機能や内容の違い。無ければ None. The app's features and content are the same in all regions. と書く。
+None. The app's features and content are the same in all regions.
 
 6. REGULATED INDUSTRY / THIRD-PARTY MATERIAL
-TODO: 規制のある業種（金融・医療・ギャンブルなど）か、第三者の保護された素材（商標・著作物・ライセンスを受けた素材）を含むかと、使ってよいことを示す資料。どちらも無ければそう書く。同梱したフォントなどのライセンスはここに挙げる。
+The app is not in a regulated industry and contains no third-party protected material. The biometric marks are Apple's SF Symbols. No fonts are bundled.
