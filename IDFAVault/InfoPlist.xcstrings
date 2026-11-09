@@ -1,0 +1,40 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NSFaceIDUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault verifies your identity before showing your advertising identifier."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "広告識別子を表示する前に本人確認を行います。"
+          }
+        }
+      }
+    },
+    "NSUserTrackingUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault uses this only to show this device's advertising identifier (IDFA) on screen. It is never used for advertising or tracking."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この端末の広告識別子（IDFA）を画面に表示するために使います。広告の配信やトラッキングには使いません。"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
