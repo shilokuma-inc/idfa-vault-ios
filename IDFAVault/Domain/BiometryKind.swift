@@ -39,15 +39,15 @@ enum BiometryKind: Hashable, Sendable {
         }
     }
 
-    /// 製品名（Face ID など）。生体認証が無いときは nil
+    /// 製品名（Face ID など）。生体認証が無いときは nil。簡体字中国語では「面容 ID」「触控 ID」のように訳がある
     var productName: String? {
         switch self {
         case .faceID:
-            "Face ID"
+            String(localized: "Face ID")
         case .touchID:
-            "Touch ID"
+            String(localized: "Touch ID")
         case .opticID:
-            "Optic ID"
+            String(localized: "Optic ID")
         case .none:
             nil
         }
