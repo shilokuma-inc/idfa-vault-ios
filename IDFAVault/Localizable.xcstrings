@@ -502,6 +502,7 @@
       }
     },
     "Place your finger on the Home button" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -512,6 +513,7 @@
       }
     },
     "Place your finger on the Touch ID sensor" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -522,6 +524,7 @@
       }
     },
     "Place your finger on the top button" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -842,6 +845,7 @@
       }
     },
     "Verifying with Optic ID…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -886,7 +890,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iCloud · %@に同期"
+            "value" : "iCloud · 最終同期 %@"
           }
         }
       }
