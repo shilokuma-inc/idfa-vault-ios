@@ -40,6 +40,7 @@ struct MetalButtonStyle: ButtonStyle {
                 .shadow(color: .black.opacity(kind == .primary ? 0.6 : 0.4), radius: 9, y: 12)
             }
             .contentShape(ChamferedRect(chamfer: chamfer))
+            .chamferedHoverEffect(chamfer: chamfer)
             .brightness(configuration.isPressed ? -0.12 : 0)
             .opacity(isEnabled ? 1 : 0.5)
     }
@@ -273,5 +274,19 @@ struct ToolButtonLabel: View {
             .foregroundStyle(HeatTint.icon)
             .frame(width: size, height: size)
             .contentShape(Rectangle())
+            .chamferedHoverEffect(chamfer: 9)
+    }
+}
+
+extension View {
+    /// visionOS の視線のハイライトを、面取りの形で出す（ほかのプラットフォームでは何もしない）
+    @ViewBuilder
+    func chamferedHoverEffect(chamfer: CGFloat) -> some View {
+        #if os(visionOS)
+        contentShape(.hoverEffect, ChamferedRect(chamfer: chamfer))
+            .hoverEffect()
+        #else
+        self
+        #endif
     }
 }
