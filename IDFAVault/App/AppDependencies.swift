@@ -67,8 +67,10 @@ struct AppDependencies {
     static var screenshotDemo: AppDependencies {
         let scene = ScreenshotDemo.scene ?? .home
         let defaults = UserDefaults.volatile(named: "screenshot-demo")
-        // デモの値なので、Mac のウインドウをスクリーンショットから外さない
+        #if os(macOS)
+        // デモの値なので、Mac のウインドウをスクリーンショットから外さない（iOS の撮影には効かないので設定のままにする）
         defaults.set(false, forKey: AppSettings.hidesWhileCapturingKey)
+        #endif
         return AppDependencies(
             authenticator: StubAuthenticator(kind: .demo, outcome: scene == .lock ? .cancelled : .success),
             tracking: StubTrackingProvider(
