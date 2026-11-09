@@ -280,6 +280,22 @@ API が無い・アカウントで一度だけ行うなど、ワークフロー�
 
 流す順は、（2 つ目以降のバージョンでは App Store Connect でバージョンを作ってから）`Metadata/App Store` を dry-run で実行して Job Summary の差分を確かめ → `dry_run` を外して実行 → 最後に出る「審査に出す前に App Store Connect で入力が要るもの」を App Store Connect で埋める、です。
 
+## アプリアイコン
+
+アイコン（仕様書 7 章の案 B「ID / FA 2 段」）は [Tools/render_app_icon.swift](Tools/render_app_icon.swift) で描いています。デザインの原本の寸法とグラデーションをそのまま 1024px に引き伸ばしたものです。
+
+```bash
+swift Tools/render_app_icon.swift /tmp/idfa-icon
+```
+
+| 書き出すもの | 置き場所 |
+| --- | --- |
+| `icon-1024.png`（iOS。正方形・透明なし） | `IDFAVault/Assets.xcassets/AppIcon.appiconset/AppIcon.png` |
+| `mac-<px>.png`（macOS。標準の角丸の枠） | `AppIcon.appiconset/mac-<px>.png`（16〜1024） |
+| `vision-back.png` / `vision-front.png`（visionOS の奥と手前の層） | `AppIcon-Vision.solidimagestack` |
+
+visionOS だけ別のアイコン（`AppIcon-Vision`）を使うよう、`ASSETCATALOG_COMPILER_APPICON_NAME[sdk=xros*]` で切り替えています。
+
 ## 構成
 
 ```
