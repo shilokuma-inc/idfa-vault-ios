@@ -4,10 +4,40 @@
     "NSFaceIDUsageDescription" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault bestätigt deine Identität, bevor deine Werbe-ID angezeigt wird."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "IDFA Vault verifies your identity before showing your advertising identifier."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault verifica tu identidad antes de mostrar tu identificador de publicidad."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault vérifie votre identité avant d’afficher votre identifiant publicitaire."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault memverifikasi identitas Anda sebelum menampilkan pengenal iklan Anda."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault verifica la tua identità prima di mostrare il tuo identificatore pubblicitario."
           }
         },
         "ja" : {
@@ -15,22 +45,112 @@
             "state" : "translated",
             "value" : "広告識別子を表示する前に本人確認を行います。"
           }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault는 광고 식별자를 표시하기 전에 본인 확인을 합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O IDFA Vault verifica sua identidade antes de mostrar seu identificador de publicidade."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault подтверждает вашу личность, прежде чем показать рекламный идентификатор."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示广告标识符前，IDFA Vault 会验证你的身份。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示廣告識別碼前，IDFA Vault 會驗證你的身分。"
+          }
         }
       }
     },
     "NSUserTrackingUsageDescription" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault verwendet diese Berechtigung nur, um die Werbe-ID (IDFA) dieses Geräts auf dem Bildschirm anzuzeigen. Sie wird nie für Werbung oder Tracking verwendet."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "IDFA Vault uses this only to show this device's advertising identifier (IDFA) on screen. It is never used for advertising or tracking."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault solo usa este permiso para mostrar en pantalla el identificador de publicidad (IDFA) de este dispositivo. Nunca se usa para publicidad ni rastreo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault utilise cette autorisation uniquement pour afficher à l’écran l’identifiant publicitaire (IDFA) de cet appareil. Il n’est jamais utilisé à des fins publicitaires ni de suivi."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault hanya menggunakan izin ini untuk menampilkan pengenal iklan (IDFA) perangkat ini di layar. Izin ini tidak pernah digunakan untuk iklan atau pelacakan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault usa questo permesso solo per mostrare sullo schermo l’identificatore pubblicitario (IDFA) di questo dispositivo. Non viene mai usato per la pubblicità o il tracciamento."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "この端末の広告識別子（IDFA）を画面に表示するために使います。広告の配信やトラッキングには使いません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault는 이 권한을 이 기기의 광고 식별자(IDFA)를 화면에 표시하는 데만 사용하며, 광고나 추적에는 절대 사용하지 않습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O IDFA Vault usa esta permissão apenas para mostrar na tela o identificador de publicidade (IDFA) deste dispositivo. Ela nunca é usada para publicidade ou rastreamento."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault использует это разрешение только для того, чтобы показать на экране рекламный идентификатор (IDFA) этого устройства. Он никогда не используется для рекламы или отслеживания."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault 仅使用此权限在屏幕上显示此设备的广告标识符（IDFA），绝不会用于广告或跟踪。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFA Vault 只會使用此權限在螢幕上顯示此裝置的廣告識別碼（IDFA），絕不會用於廣告或追蹤。"
           }
         }
       }
