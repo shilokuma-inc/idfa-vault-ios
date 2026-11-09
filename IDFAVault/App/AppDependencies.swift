@@ -66,16 +66,19 @@ struct AppDependencies {
     /// スクリーンショットの撮影。撮る画面（ScreenshotDemo.Scene）に合わせて、ロックの状態とトラッキングの許可を決める
     static var screenshotDemo: AppDependencies {
         let scene = ScreenshotDemo.scene ?? .home
+        let defaults = UserDefaults.volatile(named: "screenshot-demo")
+        // デモの値なので、Mac のウインドウをスクリーンショットから外さない
+        defaults.set(false, forKey: AppSettings.hidesWhileCapturingKey)
         return AppDependencies(
-            authenticator: StubAuthenticator(kind: .faceID, outcome: scene == .lock ? .cancelled : .success),
+            authenticator: StubAuthenticator(kind: .demo, outcome: scene == .lock ? .cancelled : .success),
             tracking: StubTrackingProvider(
                 status: scene == .denied ? .denied : .authorized,
                 identifier: UITesting.sampleIdentifier
             ),
             clipboard: NoopClipboard(),
             deviceInfo: StubDeviceInfo(),
-            sync: StubDeviceSync(records: StubDeviceSync.demoDevices(now: .now)),
-            defaults: .volatile(named: "screenshot-demo"),
+            sync: StubDeviceSync(records: StubDeviceSync.demoDevices(now: .now, excluding: StubDeviceInfo().name)),
+            defaults: defaults,
             startsUnlocked: scene != .lock
         )
     }
@@ -87,18 +90,23 @@ struct AppDependencies {
         let outcome = UITesting.value(after: UITesting.authenticationArgument, in: arguments)
             .flatMap(AuthenticationOutcome.init(argument:)) ?? .success
         let biometry = UITesting.value(after: UITesting.biometryArgument, in: arguments)
-            .flatMap(BiometryKind.init(argument:)) ?? .faceID
+            .flatMap(BiometryKind.init(argument:)) ?? .demo
         let iCloud = UITesting.value(after: UITesting.iCloudArgument, in: arguments)
         let sync = iCloud == "noAccount"
             ? StubDeviceSync(availability: .noAccount)
-            : StubDeviceSync(records: iCloud == "empty" ? [] : StubDeviceSync.demoDevices(now: .now))
+            : StubDeviceSync(records: iCloud == "empty" ? [] : StubDeviceSync.demoDevices(now: .now, excluding: StubDeviceInfo().name))
+        let defaults = UserDefaults.volatile(named: "ui-testing")
+        if arguments.contains(UITesting.allowsCaptureArgument) {
+            // Mac のウインドウをスクリーンショットに写すため、「画面収録・ミラーリング中は隠す」を切る
+            defaults.set(false, forKey: AppSettings.hidesWhileCapturingKey)
+        }
         return AppDependencies(
             authenticator: StubAuthenticator(kind: biometry, outcome: outcome),
             tracking: StubTrackingProvider(status: status, identifier: UITesting.sampleIdentifier),
             clipboard: SystemClipboard(),
             deviceInfo: StubDeviceInfo(),
             sync: sync,
-            defaults: .volatile(named: "ui-testing"),
+            defaults: defaults,
             trackingPromptDelay: .zero
         )
     }
@@ -115,6 +123,8 @@ enum UITesting {
     static let biometryArgument = "-ui-testing-biometry"
     /// iCloud の状態（devices（既定）/ empty / noAccount）を続けて渡す
     static let iCloudArgument = "-ui-testing-icloud"
+    /// 「画面収録・ミラーリング中は隠す」を切って起動する（Mac のスクリーンショット）
+    static let allowsCaptureArgument = "-ui-testing-allows-capture"
     // swiftlint:disable:next force_unwrapping
     static let sampleIdentifier = AdvertisingIdentifier("6D92078A-8246-4BA4-AE5B-76104861E7DC")!
 
@@ -156,6 +166,18 @@ extension AuthenticationOutcome {
 }
 
 extension BiometryKind {
+    /// 撮影と UI テストの既定。そのプラットフォームの代表的な認証方式
+    static var demo: BiometryKind {
+        switch DeviceKind.current {
+        case .mac:
+            .touchID(.mac)
+        case .vision:
+            .opticID
+        case .iPhone, .iPad:
+            .faceID
+        }
+    }
+
     /// UI テストの起動引数の値から作る
     init?(argument: String) {
         switch argument {
@@ -292,9 +314,9 @@ final class StubDeviceSync: DeviceSyncing {
         }
     }
 
-    /// 撮影と UI テストで出す、ほかの端末
-    static func demoDevices(now: Date) -> [DeviceRecord] {
-        [
+    /// 撮影と UI テストで出す、ほかの端末。excluding と同じ名前の端末（この端末と同じ種類）は外す
+    static func demoDevices(now: Date, excluding ownName: String? = nil) -> [DeviceRecord] {
+        let devices = [
             DeviceRecord(
                 id: "demo-ipad",
                 name: "iPad Pro",
@@ -312,6 +334,14 @@ final class StubDeviceSync: DeviceSyncing {
                 updatedAt: now.addingTimeInterval(-3_600)
             ),
             DeviceRecord(
+                id: "demo-iphone",
+                name: "iPhone 16 Pro",
+                platform: .iOS,
+                identifier: AdvertisingIdentifier("3B7E91D0-6A2F-4C85-B3E4-7D1A5F2E04C8"),
+                trackingStatus: .authorized,
+                updatedAt: now.addingTimeInterval(-7_200)
+            ),
+            DeviceRecord(
                 id: "demo-ipad-mini",
                 name: "iPad mini",
                 platform: .iPadOS,
@@ -320,5 +350,6 @@ final class StubDeviceSync: DeviceSyncing {
                 updatedAt: now.addingTimeInterval(-86_400 * 3)
             )
         ]
+        return devices.filter { $0.name != ownName }
     }
 }
