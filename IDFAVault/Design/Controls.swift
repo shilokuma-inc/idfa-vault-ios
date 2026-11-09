@@ -182,9 +182,9 @@ struct Groove: View {
 }
 
 /// 等幅・大文字のセクション見出し（例: SAME APPLE ID）と溝。右に補足を置ける
-struct SectionHeader: View {
+struct SectionHeader<Trailing: View>: View {
     var title: String
-    var trailing: Text?
+    @ViewBuilder var trailing: Trailing
 
     var body: some View {
         HStack(spacing: 10) {
@@ -192,16 +192,22 @@ struct SectionHeader: View {
                 .font(.system(size: 12, weight: .bold, design: .monospaced))
                 .tracking(1.7)
                 .foregroundStyle(HeatTint.sectionHeader)
+                .lineLimit(1)
+                .layoutPriority(1)
                 .accessibilityAddTraits(.isHeader)
             Groove()
                 .frame(maxWidth: .infinity)
-            if let trailing {
-                trailing
-                    .font(.caption)
-                    .foregroundStyle(HeatTint.tertiaryText)
-                    .lineLimit(1)
-            }
+            trailing
+                .font(.caption)
+                .foregroundStyle(HeatTint.tertiaryText)
+                .lineLimit(1)
         }
+    }
+}
+
+extension SectionHeader where Trailing == EmptyView {
+    init(title: String) {
+        self.init(title: title) { EmptyView() }
     }
 }
 
