@@ -2,7 +2,7 @@
 //  AppModel.swift
 //  IDFAVault
 //
-//  アプリ全体の状態。ロック（仕様書 3.1）・トラッキングの許可と IDFA（3.2）・コピー（3.3）を受け持つ。
+//  アプリ全体の状態。ロック（仕様書 3.1）・トラッキングの許可と IDFA（3.2）・コピー（3.3）・iCloud の同期（3.4）を受け持つ。
 //  ロックはすべてのウインドウに共通で、どのウインドウでも解除したら全体が解除される。
 //
 
@@ -15,6 +15,8 @@ final class AppModel {
     static let clipboardLifetime: TimeInterval = 60
 
     let settings: AppSettings
+    /// 同じ Apple ID の他の端末
+    let devices: DeviceSyncModel
 
     /// ロック中か。起動したときはロックしている
     private(set) var isLocked: Bool
@@ -41,6 +43,11 @@ final class AppModel {
     @ObservationIgnored private let tracking: any TrackingProviding
     @ObservationIgnored private let clipboard: any ClipboardWriting
     @ObservationIgnored private let trackingPromptDelay: Duration
+    @ObservationIgnored private let deviceInfo: any DeviceInfoProviding
+    @ObservationIgnored private let syncRefreshInterval: Duration
+    @ObservationIgnored private var ownDeviceName: String?
+    /// 前面でロックを解除しているあいだ、他の端末の一覧を読み直し続けるタスク
+    @ObservationIgnored private var refreshLoop: Task<Void, Never>?
     /// バックグラウンドに移った時刻。戻ったときに自動ロックの時間を過ぎたかを見る
     @ObservationIgnored private var backgroundedAt: Date?
     /// 前面に戻ったときに自動で本人確認を始めないか。取り消された・失敗したあとに、繰り返しダイアログを出さないため
@@ -53,12 +60,16 @@ final class AppModel {
         tracking = dependencies.tracking
         clipboard = dependencies.clipboard
         trackingPromptDelay = dependencies.trackingPromptDelay
+        deviceInfo = dependencies.deviceInfo
+        syncRefreshInterval = dependencies.syncRefreshInterval
+        devices = DeviceSyncModel(service: dependencies.sync, ownDeviceID: dependencies.deviceInfo.deviceID)
         isLocked = !dependencies.startsUnlocked
         biometry = dependencies.authenticator.biometryKind()
         supportsOwnIdentifier = dependencies.tracking.supportsAdvertisingIdentifier
         trackingStatus = dependencies.tracking.currentStatus()
         if dependencies.startsUnlocked {
             refreshIdentifier()
+            Task { await startSyncing() }
         }
     }
 
@@ -95,11 +106,13 @@ final class AppModel {
             } else {
                 refreshTracking()
                 Task { await requestTrackingIfNeeded() }
+                startRefreshLoop()
             }
         case .inactive:
             isInForeground = false
         case .background:
             isInForeground = false
+            stopRefreshLoop()
             if backgroundedAt == nil {
                 backgroundedAt = now
             }
@@ -137,12 +150,16 @@ final class AppModel {
         }
         isLocked = false
         refreshTracking()
+        // 起動ごと（ロックを解除するたび）に、この端末のレコードを書いて一覧を読み直す（仕様書 3.4）
+        Task { await startSyncing() }
         await requestTrackingIfNeeded()
     }
 
     private func lock() {
         isLocked = true
         lastAuthenticationOutcome = nil
+        stopRefreshLoop()
+        devices.concealAll()
     }
 
     private func startAutomaticUnlockIfNeeded() {
@@ -175,6 +192,8 @@ final class AppModel {
         }
         trackingStatus = await tracking.requestAuthorization()
         refreshIdentifier()
+        // 許可状態が変わったので、この端末のレコードを書き直す
+        await devices.refresh(uploading: await ownRecord())
     }
 
     private func refreshIdentifier() {
@@ -184,6 +203,76 @@ final class AppModel {
         }
         let identifier = tracking.advertisingIdentifier()
         ownIdentifier = identifier.isZero ? nil : identifier
+    }
+
+    // MARK: - iCloud の同期
+
+    /// この端末のレコードを書いてから一覧を読み、前面のあいだは読み直し続ける
+    private func startSyncing() async {
+        startRefreshLoop()
+        await devices.refresh(uploading: await ownRecord())
+    }
+
+    /// 他の端末の一覧を読み直す（引っ張って更新）
+    func refreshDevices() async {
+        await devices.refresh()
+    }
+
+    /// 「このデバイスの IDFA を同期」を切り替える。オフにしたら、この端末のレコードを消す（仕様書 3.5）
+    func setSyncsThisDevice(_ isOn: Bool) async {
+        settings.syncsThisDevice = isOn
+        if isOn {
+            await devices.refresh(uploading: await ownRecord())
+        } else {
+            await devices.deleteOwnRecord()
+            await devices.refresh()
+        }
+    }
+
+    /// 自分の Apple ID のレコードをすべて消す。同期をオンにしている端末は、次に開いたときに書き直す
+    func deleteAllSyncedData() async -> Bool {
+        await devices.deleteAll()
+    }
+
+    /// 同期するこの端末のレコード。同期をオフにしている・IDFA を取得できないプラットフォームでは nil
+    private func ownRecord() async -> DeviceRecord? {
+        guard settings.syncsThisDevice, supportsOwnIdentifier else {
+            return nil
+        }
+        if ownDeviceName == nil {
+            ownDeviceName = await deviceInfo.displayName()
+        }
+        return DeviceRecord(
+            id: deviceInfo.deviceID,
+            name: ownDeviceName ?? "",
+            platform: deviceInfo.platform,
+            identifier: ownIdentifier,
+            trackingStatus: trackingStatus,
+            updatedAt: .now
+        )
+    }
+
+    private func startRefreshLoop() {
+        guard refreshLoop == nil, !isLocked else {
+            return
+        }
+        let interval = syncRefreshInterval
+        refreshLoop = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: interval)
+                guard let self, !Task.isCancelled else {
+                    return
+                }
+                if !self.isLocked, self.isInForeground {
+                    await self.devices.refresh()
+                }
+            }
+        }
+    }
+
+    private func stopRefreshLoop() {
+        refreshLoop?.cancel()
+        refreshLoop = nil
     }
 
     // MARK: - コピー
