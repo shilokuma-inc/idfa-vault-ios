@@ -52,7 +52,10 @@ struct DeviceSyncTests {
         #expect(own?.platform == .iOS)
         #expect(own?.identifier == Self.identifier)
         #expect(own?.trackingStatus == .authorized)
-        #expect(model.devices.otherDevices.map(\.id) == ["demo-ipad", "demo-mac", "demo-ipad-mini"], "自分の端末は一覧に出さない")
+        #expect(
+            model.devices.otherDevices.map(\.id) == ["demo-ipad", "demo-mac", "demo-iphone", "demo-ipad-mini"],
+            "自分の端末は一覧に出さない"
+        )
         #expect(model.devices.lastSyncedAt != nil)
     }
 
@@ -139,7 +142,7 @@ struct DeviceSyncTests {
         await model.refreshDevices()
 
         #expect(model.devices.status == .failed)
-        #expect(model.devices.otherDevices.count == 3)
+        #expect(model.devices.otherDevices.count == 4)
     }
 
     // MARK: - 伏せ字
