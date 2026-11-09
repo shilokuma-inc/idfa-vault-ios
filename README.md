@@ -1,14 +1,17 @@
-# IDFAVault
+# IDFA Vault
 
-iOS Application Template (SwiftUI)
+自分の端末の IDFA（広告識別子）を、生体認証のうしろで確認・コピーするアプリです。
+同じ Apple ID の他の端末の IDFA も、iCloud の非公開データベース（CloudKit）で同期してまとめて確認できます。
+広告・外部 SDK・サーバーはありません。
 
-iOS アプリのリポジトリを新規作成するときの GitHub テンプレートリポジトリです。
-SwiftUI のプロジェクト一式と、ビルド・テスト・Archive・TestFlight 配信までの GitHub Actions ワークフローを含みます。
+- 対応: iPhone・iPad・Mac・Apple Vision Pro（SwiftUI のマルチプラットフォームの 1 ターゲット）
+- 言語: 英語（プライマリ）ほか主要言語
+- [shilokuma-inc/template-app-ios](https://github.com/shilokuma-inc/template-app-ios) から作成しました。以下の「テンプレートの使い方」以降は、テンプレートの手順をこのアプリに合わせたものです
 
 ## Environment
 
 - Xcode 26.6
-- iOS 17.0 以上
+- iOS / iPadOS 17.0 以上・macOS 14.0 以上・visionOS 1.0 以上
 - Swift 6（Swift 6 言語モード / Strict Concurrency）
 - SwiftUI / Swift Testing / XCTest（UI テスト）
 - SwiftLint 0.65.1（Build Tool Plugin。バイナリだけを配布する [SwiftLintPlugins](https://github.com/SimplyDanny/SwiftLintPlugins) 経由）
@@ -89,7 +92,7 @@ scripts/rename.sh MyApp
 | `DEVELOPMENT_TEAM` | Apple Developer Program の Team ID |
 | `APP_BUNDLE_IDENTIFIER` | アプリ本体の Bundle Identifier。テストターゲットは `.Tests` / `.UITests` を付けて自動で派生します |
 | `MARKETING_VERSION` | アプリのバージョン。ビルド番号（`CURRENT_PROJECT_VERSION`）は Upload のときに App Store Connect の最新ビルドを見て Xcode が自動で増やすため、手で上げる必要はありません |
-| `IPHONEOS_DEPLOYMENT_TARGET` | 最低サポート OS |
+| `IPHONEOS_DEPLOYMENT_TARGET` / `MACOSX_DEPLOYMENT_TARGET` / `XROS_DEPLOYMENT_TARGET` | 最低サポート OS（iOS・iPadOS / macOS / visionOS） |
 
 ### 4. GitHub Secrets を設定する
 
@@ -116,6 +119,21 @@ App Store Connect でのアプリ作成だけは API で行えないため、Web
 
 SKU は Bundle ID と同じ値にします。SKU はユーザーには見えない社内用の ID で、後から変更できないため、迷わないようにルールを固定しています。
 
+このアプリは iOS・macOS・visionOS の 3 つのプラットフォームに出すので、「新規アプリ」ではプラットフォームを 3 つともチェックします（後から足すときは、アプリのサイドバーのプラットフォームの横の「＋」）。
+macOS・visionOS のアップロードは、App Store Connect のアプリにそのプラットフォームがあるときだけ行い、無ければ手順を Job Summary に出して飛ばします（[.github/scripts/check-app-store-platform.rb](.github/scripts/check-app-store-platform.rb)。iOS のアップロードは止めません）。
+
+#### iCloud（CloudKit）
+
+同じ Apple ID の端末の IDFA は、CloudKit のコンテナ `iCloud.jp.shilokuma.IDFAVault` の非公開データベースで同期します（[IDFAVault/IDFAVault.entitlements](IDFAVault/IDFAVault.entitlements)）。
+コンテナの作成と App ID への割り当て、スキーマの本番環境への反映は API Key では行えないので、Apple Developer と CloudKit Console で行います。
+
+1. Apple Developer の Certificates, Identifiers & Profiles → Identifiers → iCloud Containers で `iCloud.jp.shilokuma.IDFAVault` を作る
+2. App ID `jp.shilokuma.IDFAVault` の Capabilities で iCloud（CloudKit）を有効にし、上のコンテナを割り当てる（App ID が無ければ Explicit で登録する。Export でも自動で登録される）
+3. CloudKit Console の Development 環境に、レコードタイプ `DeviceIDFA` とフィールド（`deviceID`・`deviceName`・`platform`・`idfa`・`attStatus` は String、`updatedAt` は Date/Time）を作り、Deploy Schema Changes で Production に反映する。TestFlight と App Store の版は Production を使う
+
+- 署名せずに作った archive には entitlement が入らないため、`_archive.yml` が archive の後に [Tools/embed_archive_entitlements.py](Tools/embed_archive_entitlements.py) でアドホック署名して iCloud の entitlement を埋め込み、Export した IPA・pkg に残ったかを確かめます。App ID の iCloud が無効だと、この確認で止まります
+- macOS は iCloud の entitlement を profile の無いアドホック署名で付けると起動できないため、CI のテストと archive（`CODE_SIGN_STYLE=Manual`）では付けません（[Configs/Project.xcconfig](Configs/Project.xcconfig)）
+
 #### TestFlight の内部テスター
 
 Upload ワークフローは、アップロードの前に TestFlight の内部テストグループ「Internal Testers」を作り、Secret `TESTFLIGHT_INTERNAL_TESTERS` のメールアドレスを内部テスターに追加します（[.github/scripts/ensure-internal-testers.rb](.github/scripts/ensure-internal-testers.rb)）。グループは「すべてのビルドへのアクセス」を有効にして作るため、以降のビルドは処理が終わりしだい自動で配信されます。2 回目以降の Upload では確認だけで何もしません。
@@ -134,7 +152,7 @@ Upload ワークフローは、アップロードの前に TestFlight の内部�
 
 ### 6. ブランチ運用と CI
 
-| ブランチ | Build（ビルド + テスト + SwiftLint） | Archive（IPA Export） | Upload（App Store Connect） |
+| ブランチ | Build（ビルド + テスト + SwiftLint） | Archive（IPA / pkg の Export） | Upload（App Store Connect） |
 |---|:-:|:-:|:-:|
 | `main` | ✅ | ✅ | |
 | `develop` | ✅ | | ✅ |
@@ -143,9 +161,12 @@ Upload ワークフローは、アップロードの前に TestFlight の内部�
 | Pull Request の作成時（opened / reopened / ready_for_review） | ✅ | | |
 | Fork からの Pull Request | ✅ | | |
 
-- Upload は Archive → IPA Export を含むため、`develop` / `release/**` では Archive を別途実行しません
+- Build は 1 つのジョブで iOS・macOS・visionOS を順にビルドします。UI テストを流すときは iOS Simulator でテストし、macOS と visionOS Simulator はビルドだけ確かめます。作業ブランチでは iOS もビルドだけにし、Unit テストを macOS で流します（Simulator の起動を待たないため）
+- Archive / Upload は iOS → macOS → visionOS の順に 1 つずつ流します（macOS ランナーの同時実行枠を 1 つしか使わないため）。iOS・visionOS は IPA、macOS は pkg を Export します。前のプラットフォームが失敗しても次は流します
+- Upload は Archive → Export を含むため、`develop` / `release/**` では Archive を別途実行しません
 - Archive / Upload は Actions タブから手動でも実行できます（Run workflow）。作業ブランチを TestFlight で確認したいときは、Upload を手動実行してそのブランチを選びます
 - リポジトリ変数（Settings → Secrets and variables → Actions → Variables）に `ENABLE_DELIVERY=false` を設定すると Upload をスキップします（Archive は App Store Connect にアプリが無くても通るため止めません）。テンプレートリポジトリ自身はこの設定でアップロードを止めています。テンプレートから作成したリポジトリには引き継がれないため、何もしなければ従来どおり実行されます
+- macOS・visionOS だけを止めたいときは、リポジトリ変数 `ENABLE_MACOS_DELIVERY=false` / `ENABLE_VISIONOS_DELIVERY=false` を設定します（Archive・Upload の両方で飛ばします）
 - ドキュメントだけの変更（`**/*.md`、`docs/**`）では Build を実行しません。Upload（`develop` / `release/**` への push）と Archive（`main` への push）は、ドキュメントだけの変更でも実行します
 - 作業ブランチへの push では、時間のかかる UI テスト（`<プロジェクト名>UITests`）を省いて Unit テストだけ実行します。UI テストは Pull Request の作成時と `main` / `develop` / `release/**` への push で実行します。Fork からの Pull Request は push で実行されないため、更新（synchronize）を含むすべてのイベントで UI テストまで実行します
 - Xcode のバージョンは [.github/workflows/_build.yml](.github/workflows/_build.yml) と [.github/workflows/_archive.yml](.github/workflows/_archive.yml) の `xcode-version` で固定しています。Environment の更新時はあわせて変更してください
@@ -275,22 +296,22 @@ API が無い・アカウントで一度だけ行うなど、ワークフロー�
 ```
 .
 ├── Configs/                 # xcconfig（署名情報・バージョン・Deployment Target）
-├── IDFAVault/          # アプリ本体（SwiftUI）
-├── IDFAVaultTests/     # Unit テスト（Swift Testing）
-├── IDFAVaultUITests/   # UI テスト（XCTest）
-├── IDFAVault.xcodeproj # 共有スキーム IDFAVault を含む
+├── IDFAVault/               # アプリ本体（SwiftUI。iOS・macOS・visionOS 共通）
+├── IDFAVaultTests/          # Unit テスト（Swift Testing）
+├── IDFAVaultUITests/        # UI テスト（XCTest）
+├── IDFAVault.xcodeproj      # 共有スキーム IDFAVault を含む
 ├── AppStore/                # App Store の掲載情報（言語・撮る画面・説明文・クリエイティブアセット）
-├── Tools/                   # スクリーンショットの撮影と App Store Connect への反映
+├── Tools/                   # スクリーンショットの撮影と App Store Connect への反映・archive への entitlements の埋め込み
 ├── docs/                    # ExportOptions.plist のサンプル
 ├── scripts/                 # rename.sh
 ├── .swiftlint.yml           # SwiftLint 設定
 └── .github/
     ├── ISSUE_TEMPLATE/      # Issue テンプレート
     ├── pull_request_template.md
-    ├── scripts/             # check-app-store-app.rb（App Store Connect のアプリの有無を確認）
+    ├── scripts/             # check-app-store-app.rb / check-app-store-platform.rb（App Store Connect のアプリ・プラットフォームの有無を確認）
     └── workflows/
-        ├── _build.yml       # 共通処理: ビルド + テスト + SwiftLint（workflow_call）
-        ├── _archive.yml     # 共通処理: Archive → Export（→ Upload）（workflow_call）
+        ├── _build.yml       # 共通処理: ビルド + テスト + SwiftLint（iOS・macOS・visionOS。workflow_call）
+        ├── _archive.yml     # 共通処理: Archive → Export（→ Upload）（1 回で 1 プラットフォーム。workflow_call）
         ├── build.yml        # 全ブランチの push / Fork からの PR
         ├── archive.yml      # main の push
         ├── upload.yml       # develop / release/** の push
