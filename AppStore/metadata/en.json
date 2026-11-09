@@ -6,14 +6,21 @@
     "subtitle はアプリ名の下に出るひとこと（30 字以内）。省略できる（省略すると App Store Connect 側の値を残す）。サブタイトルも検索の対象なので、keywords と同じ語を重ねなくてよい。",
     "promotionalText は省略できる（省略すると App Store Connect 側の値をそのまま残す）。",
     "whatsNew は「このバージョンの最新情報」。{\"version\": \"1.1.0\", \"text\": \"…\"} の形で書き、version が反映先のバージョンと一致するときだけ書き込む。",
-    "最初のバージョン（1.0.0）には最新情報の欄が無いので、2 つ目のバージョンから足す。",
-    "TODO: テンプレートの仮の文言。アプリを作ったら書き換える（Metadata/App Store は既定で dry-run）。"
+    "最初のバージョン（1.0.0）には最新情報の欄が無いので、2 つ目のバージョンから足す。"
   ],
-  "name": "TODO: App name",
-  "subtitle": "TODO: Short phrase under name",
-  "promotionalText": "TODO: One line about why people will love this app (up to 170 characters).",
-  "description": "TODO: App description. What the app does, its key features, and how to get started.\n\n■ Key features\n• Feature 1\n• Feature 2\n• Feature 3",
+  "name": "IDFA Vault",
+  "subtitle": "Ad ID behind a biometric lock",
+  "promotionalText": "Check and copy your advertising identifier (IDFA) in seconds, locked behind Face ID, Touch ID or Optic ID and synced only through your own iCloud.",
+  "description": "IDFA Vault shows your device's advertising identifier (IDFA) behind a biometric lock, so you can copy it in seconds whenever you need it — for example, to register a test device in an ad SDK, or when a carrier or a service asks for it.\n\n■ Locked every time\n• Face ID, Touch ID or Optic ID (or your passcode) is required at launch and when you return to the app\n• The app switcher never shows your IDFA\n• Optionally hides itself during screen recording or mirroring\n\n■ Copy, share and QR code\n• Copy the IDFA in uppercase with hyphens. It is cleared from the clipboard after 60 seconds\n• Share it, or show it as a QR code on iPad, Mac and Apple Vision Pro\n• On Mac, press ⌘C or use the menu bar\n\n■ All your devices in one place\n• See the IDFA of your other devices signed in with the same Apple Account, synced through your private iCloud database\n• Other devices' IDFA stay masked until you tap them\n• Delete all synced data at any time\n\n■ Private by design\n• No ads, no analytics, no third-party SDKs and no servers\n• Your IDFA is stored only in your own iCloud. Not even the developer can see it\n• The tracking permission is used only to show the IDFA on screen, never for advertising or tracking\n\nDesigned for iPhone, iPad, Mac and Apple Vision Pro. visionOS does not provide the IDFA to visionOS apps, so Apple Vision Pro shows the IDFA of your other devices.",
   "keywords": [
-    "TODO: keyword"
+    "advertising identifier",
+    "ad id",
+    "ATT",
+    "app tracking",
+    "device id",
+    "test device",
+    "ad testing",
+    "copy",
+    "QR code"
   ]
 }

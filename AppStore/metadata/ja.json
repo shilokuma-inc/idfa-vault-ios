@@ -1,19 +1,27 @@
 {
   "_comment": [
-    "App Store の日本語（ja）の説明文など。上限: name 30 字 / subtitle 30 字 / description 4000 字 / keywords 合計 100 字（カンマ込み）/ promotionalText 170 字 / whatsNew 4000 字。",
+    "App Store の英語（en-US）の説明文など。上限: name 30 字 / subtitle 30 字 / description 4000 字 / keywords 合計 100 字（カンマ込み）/ promotionalText 170 字 / whatsNew 4000 字。",
     "アプリ名とカテゴリ名はもともと検索対象なので keywords に入れなくてよい。",
     "name は App Store に出すアプリ名（30 字以内）。省略すると App Store Connect 側の値を残すが、App Store Connect にその言語の App 情報が無い（アプリを作ったときの言語でない）ときは、追加するのに必要。",
     "subtitle はアプリ名の下に出るひとこと（30 字以内）。省略できる（省略すると App Store Connect 側の値を残す）。サブタイトルも検索の対象なので、keywords と同じ語を重ねなくてよい。",
     "promotionalText は省略できる（省略すると App Store Connect 側の値をそのまま残す）。",
     "whatsNew は「このバージョンの最新情報」。{\"version\": \"1.1.0\", \"text\": \"…\"} の形で書き、version が反映先のバージョンと一致するときだけ書き込む。",
-    "最初のバージョン（1.0.0）には最新情報の欄が無いので、2 つ目のバージョンから足す。",
-    "TODO: テンプレートの仮の文言。アプリを作ったら書き換える（Metadata/App Store は既定で dry-run）。"
+    "最初のバージョン（1.0.0）には最新情報の欄が無いので、2 つ目のバージョンから足す。"
   ],
-  "name": "TODO: アプリ名",
-  "subtitle": "TODO: アプリ名の下のひとこと",
-  "promotionalText": "TODO: アプリの魅力を 170 字以内でひとことで。バージョンを出さずに書き換えられます。",
-  "description": "TODO: アプリの説明文。何ができるアプリか、主な機能、使い方の順に書く。\n\n■ 主な機能\n• 機能 1\n• 機能 2\n• 機能 3",
+  "name": "IDFA Vault",
+  "subtitle": "広告IDを生体認証で安全に確認",
+  "promotionalText": "広告識別子（IDFA）を、Face ID・Touch ID・Optic IDのロックの奥で確認して、すぐにコピー。同期するのは自分のiCloudだけです。",
+  "description": "IDFA Vaultは、この端末の広告識別子（IDFA）を生体認証のロックの奥で表示し、必要なときにすぐコピーできるアプリです。広告SDKにテスト端末を登録するとき、通信事業者などの手続きでIDFAを求められたときに使えます。\n\n■ 毎回ロック\n• 起動時とアプリに戻ったときに、Face ID・Touch ID・Optic ID（またはパスコード）を必ず求めます\n• アプリスイッチャーにIDFAが映りません\n• 画面収録・ミラーリング中は隠すこともできます\n\n■ コピー・共有・QRコード\n• IDFAを大文字・ハイフン付きでコピー。60秒後にクリップボードから消えます\n• 共有のほか、iPad・Mac・Apple Vision ProではQRコードでも表示できます\n• Macでは⌘Cやメニューバーからもコピーできます\n\n■ 自分の端末をまとめて確認\n• 同じApple Accountの他の端末のIDFAも、iCloudの非公開データベースで同期して一覧で確認できます\n• 他の端末のIDFAは、タップするまで伏せ字で表示します\n• 同期データはいつでもすべて削除できます\n\n■ プライバシーを第一に\n• 広告・解析・外部SDK・サーバーは一切ありません\n• IDFAはあなたのiCloudにだけ保存され、開発者も見ることはできません\n• トラッキングの許可は、IDFAを画面に表示するためだけに使います。広告やトラッキングには使いません\n\niPhone・iPad・Mac・Apple Vision Proに対応。visionOSはアプリにIDFAを提供しないため、Apple Vision Proでは他の端末のIDFAを表示します。",
   "keywords": [
-    "TODO: キーワード"
+    "広告識別子",
+    "広告ID",
+    "トラッキング",
+    "ATT",
+    "端末ID",
+    "テスト端末",
+    "広告テスト",
+    "コピー",
+    "QRコード",
+    "アイディーエフエー"
   ]
 }
