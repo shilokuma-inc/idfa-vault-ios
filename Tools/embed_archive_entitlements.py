@@ -153,11 +153,33 @@ def check(args: argparse.Namespace) -> int:
         exported = signed_entitlements(packaged_app(args.package, Path(directory))) or {}
     for key, value in sorted(exported.items()):
         print(f"{args.package.name}: {key} = {value}")
-    missing = sorted(set(archived) - set(exported))
-    if missing:
-        raise SystemExit(f"{args.package.name} に {', '.join(missing)} がありません。"
-                         "配布用の profile に入っているか（App ID の capability が有効か）を確かめてください")
+    problems = missing_entitlements(archived, exported)
+    if problems:
+        raise SystemExit(f"{args.package.name} に {', '.join(problems)} がありません。"
+                         "配布用の profile に入っているか（App ID の capability が有効か・iCloud のコンテナが割り当てられているか）を確かめてください")
     return 0
+
+
+#: 配布用の署名で外れてよい（開発用の）entitlement
+DEVELOPMENT_ONLY = {"com.apple.security.get-task-allow", "get-task-allow"}
+
+
+def missing_entitlements(archived: dict, exported: dict) -> list[str]:
+    """archive の entitlement のうち、Export したものに残っていないものを返す。
+
+    キーが無いものに加えて、配列の値（iCloud のコンテナの ID・`CloudKit` など）は、archive の要素がすべて残っているかも見る。
+    キーだけが残って配列が空だと、同期が動かないのに確認を通ってしまうため。配列以外の値は、配布用に書き換わる（環境など）ので比べない。
+    """
+    problems = []
+    for key, value in sorted(archived.items()):
+        if key in DEVELOPMENT_ONLY:
+            continue
+        if key not in exported:
+            problems.append(key)
+        elif isinstance(value, list):
+            lost = [item for item in value if item not in (exported[key] if isinstance(exported[key], list) else [])]
+            problems.extend(f"{key} の {item}" for item in lost)
+    return problems
 
 
 def main(argv: list[str]) -> int:
