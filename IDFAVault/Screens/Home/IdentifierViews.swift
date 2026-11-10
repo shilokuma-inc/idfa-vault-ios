@@ -46,21 +46,16 @@ struct OwnIdentifierCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 8) {
-                Text(verbatim: "IDFA · \(DeviceKind.current.engravedName)")
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .tracking(1.9)
-                    .foregroundStyle(HeatTint.text.opacity(0.78))
-                    .lineLimit(1)
-                Spacer(minLength: 8)
-                if model.supportsOwnIdentifier {
-                    StatusBadge(
-                        title: model.trackingStatus.badgeTitle,
-                        color: model.trackingStatus.badgeColor,
-                        glows: model.trackingStatus == .authorized
-                    )
-                } else {
-                    StatusBadge(title: "Not Available", color: HeatTint.sectionHeader)
+            // 狭い iPhone（SE など）や長い言語では 1 行に入らないので、バッジを切らずに上の行に回す
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    heading
+                    Spacer(minLength: 8)
+                    badge
+                }
+                VStack(alignment: .leading, spacing: 10) {
+                    badge
+                    heading
                 }
             }
             IdentifierText(
@@ -77,6 +72,29 @@ struct OwnIdentifierCard: View {
         .padding(.bottom, 18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .ingotBackground()
+    }
+
+    private var heading: some View {
+        Text(verbatim: "IDFA · \(DeviceKind.current.engravedName)")
+            .font(.system(size: 12, weight: .bold, design: .monospaced))
+            .tracking(1.9)
+            .foregroundStyle(HeatTint.text.opacity(0.78))
+            .lineLimit(1)
+            .fixedSize()
+    }
+
+    @ViewBuilder private var badge: some View {
+        if model.supportsOwnIdentifier {
+            StatusBadge(
+                title: model.trackingStatus.badgeTitle,
+                color: model.trackingStatus.badgeColor,
+                glows: model.trackingStatus == .authorized
+            )
+            .fixedSize()
+        } else {
+            StatusBadge(title: "Not Available", color: HeatTint.sectionHeader)
+                .fixedSize()
+        }
     }
 
     @ViewBuilder private var detail: some View {
