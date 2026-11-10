@@ -1,0 +1,26 @@
+{
+  "_comment": [
+    "App Store の英語（en-US）の説明文など。上限: name 30 字 / subtitle 30 字 / description 4000 字 / keywords 合計 100 字（カンマ込み）/ promotionalText 170 字 / whatsNew 4000 字。",
+    "アプリ名とカテゴリ名はもともと検索対象なので keywords に入れなくてよい。",
+    "name は App Store に出すアプリ名（30 字以内）。省略すると App Store Connect 側の値を残すが、App Store Connect にその言語の App 情報が無い（アプリを作ったときの言語でない）ときは、追加するのに必要。",
+    "subtitle はアプリ名の下に出るひとこと（30 字以内）。省略できる（省略すると App Store Connect 側の値を残す）。サブタイトルも検索の対象なので、keywords と同じ語を重ねなくてよい。",
+    "promotionalText は省略できる（省略すると App Store Connect 側の値をそのまま残す）。",
+    "whatsNew は「このバージョンの最新情報」。{\"version\": \"1.1.0\", \"text\": \"…\"} の形で書き、version が反映先のバージョンと一致するときだけ書き込む。",
+    "最初のバージョン（1.0.0）には最新情報の欄が無いので、2 つ目のバージョンから足す。"
+  ],
+  "name": "IDFA Vault",
+  "subtitle": "以生物辨識安全查看廣告識別碼",
+  "promotionalText": "在 Face ID、Touch ID 或 Optic ID 的保護下查看並快速拷貝廣告識別碼（IDFA），只透過你自己的 iCloud 同步。",
+  "description": "IDFA Vault 會在生物辨識鎖的保護下顯示此裝置的廣告識別碼（IDFA），需要時可立即拷貝。例如在廣告 SDK 中登錄測試裝置，或電信業者、服務要求提供 IDFA 時使用。\n\n■ 每次都會鎖定\n• 啟動時和回到 App 時，都需要 Face ID、Touch ID 或 Optic ID（或密碼）\n• App 切換器中不會顯示 IDFA\n• 可在螢幕錄影或鏡像輸出時隱藏\n\n■ 拷貝、分享和 QR 碼\n• 以大寫和連字號格式拷貝 IDFA，60 秒後會從剪貼板清除\n• 可分享，也可在 iPad、Mac 和 Apple Vision Pro 上以 QR 碼顯示\n• 在 Mac 上可按 ⌘C 或從選單列拷貝\n\n■ 集中查看你的所有裝置\n• 透過 iCloud 私人資料庫同步，查看登入相同 Apple 帳號的其他裝置的 IDFA\n• 其他裝置的 IDFA 在點一下之前會保持隱藏\n• 可隨時刪除所有同步資料\n\n■ 重視隱私\n• 沒有廣告、分析、第三方 SDK 和伺服器\n• IDFA 只會儲存在你自己的 iCloud 中，開發者也無法查看\n• 追蹤權限只用於在螢幕上顯示 IDFA，絕不會用於廣告或追蹤\n\n支援 iPhone、iPad、Mac 和 Apple Vision Pro。visionOS 不會向 visionOS App 提供 IDFA，因此 Apple Vision Pro 上顯示的是你其他裝置的 IDFA。",
+  "keywords": [
+    "廣告識別碼",
+    "廣告ID",
+    "追蹤",
+    "ATT",
+    "裝置ID",
+    "測試裝置",
+    "廣告測試",
+    "拷貝",
+    "QR碼"
+  ]
+}

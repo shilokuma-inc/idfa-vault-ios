@@ -8,7 +8,77 @@
     "言語を増やしたら、ここと AppStore/metadata/<言語>.json、撮影モードのデモの文言、creative.html の copy に足す。"
   ],
   "languages": [
-    { "language": "ja", "appleLanguage": "ja", "appleLocale": "ja_JP", "storeLocale": "ja" },
-    { "language": "en", "appleLanguage": "en", "appleLocale": "en_US", "storeLocale": "en-US" }
+    {
+      "language": "ja",
+      "appleLanguage": "ja",
+      "appleLocale": "ja_JP",
+      "storeLocale": "ja"
+    },
+    {
+      "language": "en",
+      "appleLanguage": "en",
+      "appleLocale": "en_US",
+      "storeLocale": "en-US"
+    },
+    {
+      "language": "zh-Hans",
+      "appleLanguage": "zh-Hans",
+      "appleLocale": "zh-Hans_CN",
+      "storeLocale": "zh-Hans"
+    },
+    {
+      "language": "zh-Hant",
+      "appleLanguage": "zh-Hant",
+      "appleLocale": "zh-Hant_TW",
+      "storeLocale": "zh-Hant"
+    },
+    {
+      "language": "ko",
+      "appleLanguage": "ko",
+      "appleLocale": "ko_KR",
+      "storeLocale": "ko"
+    },
+    {
+      "language": "es",
+      "appleLanguage": "es",
+      "appleLocale": "es_ES",
+      "storeLocale": "es-ES"
+    },
+    {
+      "language": "fr",
+      "appleLanguage": "fr",
+      "appleLocale": "fr_FR",
+      "storeLocale": "fr-FR"
+    },
+    {
+      "language": "de",
+      "appleLanguage": "de",
+      "appleLocale": "de_DE",
+      "storeLocale": "de-DE"
+    },
+    {
+      "language": "it",
+      "appleLanguage": "it",
+      "appleLocale": "it_IT",
+      "storeLocale": "it"
+    },
+    {
+      "language": "pt-BR",
+      "appleLanguage": "pt-BR",
+      "appleLocale": "pt_BR",
+      "storeLocale": "pt-BR"
+    },
+    {
+      "language": "ru",
+      "appleLanguage": "ru",
+      "appleLocale": "ru_RU",
+      "storeLocale": "ru"
+    },
+    {
+      "language": "id",
+      "appleLanguage": "id",
+      "appleLocale": "id_ID",
+      "storeLocale": "id"
+    }
   ]
 }

@@ -1,0 +1,25 @@
+{
+  "_comment": [
+    "App Store の英語（en-US）の説明文など。上限: name 30 字 / subtitle 30 字 / description 4000 字 / keywords 合計 100 字（カンマ込み）/ promotionalText 170 字 / whatsNew 4000 字。",
+    "アプリ名とカテゴリ名はもともと検索対象なので keywords に入れなくてよい。",
+    "name は App Store に出すアプリ名（30 字以内）。省略すると App Store Connect 側の値を残すが、App Store Connect にその言語の App 情報が無い（アプリを作ったときの言語でない）ときは、追加するのに必要。",
+    "subtitle はアプリ名の下に出るひとこと（30 字以内）。省略できる（省略すると App Store Connect 側の値を残す）。サブタイトルも検索の対象なので、keywords と同じ語を重ねなくてよい。",
+    "promotionalText は省略できる（省略すると App Store Connect 側の値をそのまま残す）。",
+    "whatsNew は「このバージョンの最新情報」。{\"version\": \"1.1.0\", \"text\": \"…\"} の形で書き、version が反映先のバージョンと一致するときだけ書き込む。",
+    "最初のバージョン（1.0.0）には最新情報の欄が無いので、2 つ目のバージョンから足す。"
+  ],
+  "name": "IDFA Vault",
+  "subtitle": "ID iklan, terkunci biometrik",
+  "promotionalText": "Lihat dan salin pengenal iklan (IDFA) Anda dalam hitungan detik, dilindungi Face ID, Touch ID, atau Optic ID dan hanya diselaraskan melalui iCloud Anda sendiri.",
+  "description": "IDFA Vault menampilkan pengenal iklan (IDFA) perangkat Anda di balik kunci biometrik, sehingga Anda dapat menyalinnya dalam hitungan detik saat diperlukan — misalnya untuk mendaftarkan perangkat uji di SDK iklan, atau saat operator atau layanan memintanya.\n\n■ Selalu terkunci\n• Face ID, Touch ID, atau Optic ID (atau kode sandi) diminta saat membuka app dan setiap kali kembali ke app\n• Pengalih app tidak pernah menampilkan IDFA Anda\n• Dapat disembunyikan saat merekam atau mencerminkan layar\n\n■ Salin, bagikan, dan kode QR\n• Salin IDFA dalam huruf besar dengan tanda hubung. IDFA dihapus dari papan klip setelah 60 detik\n• Bagikan, atau tampilkan sebagai kode QR di iPad, Mac, dan Apple Vision Pro\n• Di Mac, tekan ⌘C atau gunakan bar menu\n\n■ Semua perangkat Anda di satu tempat\n• Lihat IDFA perangkat lain dengan Akun Apple yang sama, diselaraskan melalui database pribadi iCloud Anda\n• IDFA perangkat lain tetap disembunyikan sampai Anda mengetuknya\n• Hapus semua data yang diselaraskan kapan saja\n\n■ Privasi yang utama\n• Tanpa iklan, analitik, SDK pihak ketiga, dan server\n• IDFA Anda hanya disimpan di iCloud Anda sendiri. Bahkan pengembang pun tidak dapat melihatnya\n• Izin pelacakan hanya digunakan untuk menampilkan IDFA di layar, tidak pernah untuk iklan atau pelacakan\n\nDirancang untuk iPhone, iPad, Mac, dan Apple Vision Pro. visionOS tidak memberikan IDFA kepada app visionOS, sehingga Apple Vision Pro menampilkan IDFA perangkat Anda yang lain.",
+  "keywords": [
+    "pengenal iklan",
+    "ID iklan",
+    "pelacakan",
+    "ATT",
+    "ID perangkat",
+    "perangkat uji",
+    "salin",
+    "kode QR"
+  ]
+}

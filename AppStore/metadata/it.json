@@ -1,0 +1,24 @@
+{
+  "_comment": [
+    "App Store の英語（en-US）の説明文など。上限: name 30 字 / subtitle 30 字 / description 4000 字 / keywords 合計 100 字（カンマ込み）/ promotionalText 170 字 / whatsNew 4000 字。",
+    "アプリ名とカテゴリ名はもともと検索対象なので keywords に入れなくてよい。",
+    "name は App Store に出すアプリ名（30 字以内）。省略すると App Store Connect 側の値を残すが、App Store Connect にその言語の App 情報が無い（アプリを作ったときの言語でない）ときは、追加するのに必要。",
+    "subtitle はアプリ名の下に出るひとこと（30 字以内）。省略できる（省略すると App Store Connect 側の値を残す）。サブタイトルも検索の対象なので、keywords と同じ語を重ねなくてよい。",
+    "promotionalText は省略できる（省略すると App Store Connect 側の値をそのまま残す）。",
+    "whatsNew は「このバージョンの最新情報」。{\"version\": \"1.1.0\", \"text\": \"…\"} の形で書き、version が反映先のバージョンと一致するときだけ書き込む。",
+    "最初のバージョン（1.0.0）には最新情報の欄が無いので、2 つ目のバージョンから足す。"
+  ],
+  "name": "IDFA Vault",
+  "subtitle": "ID pubblicitario sotto chiave",
+  "promotionalText": "Controlla e copia il tuo identificatore pubblicitario (IDFA) in pochi secondi, protetto da Face ID, Touch ID o Optic ID e sincronizzato solo tramite il tuo iCloud.",
+  "description": "IDFA Vault mostra l’identificatore pubblicitario (IDFA) del tuo dispositivo dietro un blocco biometrico, così puoi copiarlo in pochi secondi quando ti serve: ad esempio per registrare un dispositivo di test in un SDK pubblicitario, o quando un operatore o un servizio te lo chiede.\n\n■ Sempre bloccato\n• Face ID, Touch ID o Optic ID (o il codice) vengono richiesti all’apertura e ogni volta che torni nell’app\n• Il selettore delle app non mostra mai il tuo IDFA\n• Facoltativamente si nasconde durante la registrazione o la duplicazione dello schermo\n\n■ Copia, condividi e codice QR\n• Copia l’IDFA in maiuscolo con i trattini. Viene cancellato dagli appunti dopo 60 secondi\n• Condividilo o mostralo come codice QR su iPad, Mac e Apple Vision Pro\n• Su Mac, premi ⌘C o usa la barra dei menu\n\n■ Tutti i tuoi dispositivi in un unico posto\n• Vedi l’IDFA degli altri dispositivi con lo stesso Account Apple, sincronizzato tramite il tuo database privato di iCloud\n• L’IDFA degli altri dispositivi resta nascosto finché non lo tocchi\n• Elimina tutti i dati sincronizzati in qualsiasi momento\n\n■ Privacy prima di tutto\n• Niente pubblicità, analisi, SDK di terze parti né server\n• Il tuo IDFA è memorizzato solo nel tuo iCloud. Nemmeno lo sviluppatore può vederlo\n• Il permesso di tracciamento serve solo a mostrare l’IDFA sullo schermo, mai per la pubblicità o il tracciamento\n\nProgettata per iPhone, iPad, Mac e Apple Vision Pro. visionOS non fornisce l’IDFA alle app visionOS, quindi Apple Vision Pro mostra l’IDFA degli altri dispositivi.",
+  "keywords": [
+    "identificatore pubblicitario",
+    "ID pubblicità",
+    "tracciamento",
+    "ATT",
+    "dispositivo test",
+    "copia",
+    "QR"
+  ]
+}
