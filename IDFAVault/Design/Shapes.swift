@@ -7,8 +7,9 @@
 
 import SwiftUI
 
-/// 四隅を斜めに落とした八角形（面取り）。面取りの大きさだけ変えて使い回す
-struct ChamferedRect: InsettableShape {
+/// 四隅を斜めに落とした八角形（面取り）。面取りの大きさだけ変えて使い回す。
+/// 状態を持たない値の型なので MainActor に閉じ込めない（Xcode 27 では、Shape への準拠が MainActor をまたぐとエラーになる）
+nonisolated struct ChamferedRect: InsettableShape {
     var chamfer: CGFloat
     var insetAmount: CGFloat = 0
 
@@ -37,7 +38,7 @@ struct ChamferedRect: InsettableShape {
 }
 
 /// 左右を尖らせた六角形（バッジ）
-struct PointedCapsule: Shape {
+nonisolated struct PointedCapsule: Shape {
     var point: CGFloat = 6
 
     func path(in rect: CGRect) -> Path {
