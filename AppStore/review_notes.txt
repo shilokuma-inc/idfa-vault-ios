@@ -9,6 +9,7 @@ The app has no account registration, login, user-generated content, paid content
 2. PURPOSE AND TARGET AUDIENCE
 IDFA Vault shows the device's advertising identifier (IDFA) so that the user can copy it. It is for developers who register test devices in advertising SDKs, and for people who are asked for their IDFA by a carrier or a service.
 The IDFA is used only to display it on screen and to save it to the user's own iCloud private database. It is never used for advertising or tracking. The app contains no ads, analytics, or third-party SDKs, and has no server. The developer cannot access any user data.
+App Privacy lists Device ID as used for tracking only because iOS requires the tracking permission to read the IDFA. The app does not track users.
 To protect the identifier, the app always asks for Face ID, Touch ID, or Optic ID (or the device passcode) at launch and when it returns from the background.
 
 3. HOW TO ACCESS THE MAIN FEATURES
@@ -17,15 +18,15 @@ No login, account, credentials, or sample files are required.
 2. Allow tracking in the App Tracking Transparency prompt. The permission is used only to read the IDFA and show it on screen; without it, iOS returns all zeros and the app shows how to allow it in Settings.
 3. On the home screen, tap "Copy" to copy the IDFA (it is cleared from the clipboard after 60 seconds) or "Share" to share it.
 4. Open IDFA Vault on another device signed in with the same Apple Account. Its IDFA appears under "SAME APPLE ID" within about 20 seconds. Tap a row to show all digits.
-5. Tap the settings button (top right) to change the auto-lock timing, masking, screen recording protection, and iCloud sync, or to delete all synced data.
+5. In Settings (top right), change auto-lock, masking, screen recording protection, and iCloud sync (iPhone and iPad only), or delete all synced data.
 On iPad and Mac, the devices are listed in a sidebar and the IDFA can also be shown as a QR code. On Mac, the menu bar item asks for Touch ID or the password each time it opens.
 On Mac and Apple Vision Pro, the system does not provide the IDFA to apps (on macOS the tracking status always stays "not determined" and no prompt is shown; the visionOS SDK has no AdSupport framework). These versions show a short explanation instead of their own IDFA, list the IDFAs of the user's iPhone and iPad synced through iCloud (open IDFA Vault on an iPhone or iPad with the same Apple Account to see them), do not show the tracking prompt, and do not write their own record to iCloud.
 
 4. EXTERNAL SERVICES
-None other than Apple's CloudKit. Each iPhone and iPad writes one record (an app-generated device UUID, the device model name, the platform, the IDFA, and the tracking permission status) to the user's own iCloud private database, so that the user's devices can show these IDFAs. The public and shared databases are not used. The user can turn sync off or delete all synced data in Settings.
+None other than Apple's CloudKit. Each iPhone and iPad writes one record (an app-generated device UUID, the device model name, the platform, the IDFA, and the tracking permission status) to the user's own iCloud private database, so that the user's devices can show these IDFAs. The public and shared databases are not used.
 
 5. REGIONAL DIFFERENCES
 None. The app's features and content are the same in all regions.
 
 6. REGULATED INDUSTRY / THIRD-PARTY MATERIAL
-The app is not in a regulated industry and contains no third-party protected material. The biometric marks are Apple's SF Symbols. No fonts are bundled.
+The app is not in a regulated industry and contains no third-party protected material. The biometric marks are Apple's SF Symbols.
