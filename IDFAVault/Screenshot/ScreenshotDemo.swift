@@ -7,7 +7,7 @@
 //
 //    -screenshot-demo -screenshot-scene <Scene の rawValue> -AppleLanguages (<言語>) -AppleLocale <ロケール>
 //
-//  画面を足すときは、Scene に case を足し、IDFAVault.swift の rootView で開く画面を返し、
+//  画面を足すときは、Scene に case を足し、AppDependencies.screenshotDemo で開く画面の状態を用意し、
 //  AppStore/screenshots.json の scenes に同じ rawValue を足す（突き合わせは Tools/app_store_config.py が行う）。
 //  デモデータは実データと混ざらないよう、撮影モードのときだけメモリ上やインメモリのストアに用意する。
 //
@@ -17,7 +17,14 @@ import Foundation
 enum ScreenshotDemo {
     /// 撮る画面。rawValue が AppStore/screenshots.json の scene と対応する
     enum Scene: String {
+        /// ホーム（トラッキング許可済み）
         case home
+        /// ロック画面
+        case lock
+        /// 設定
+        case settings
+        /// ホーム（トラッキング未許可）
+        case denied
     }
 
     /// 撮影モードで起動しているか

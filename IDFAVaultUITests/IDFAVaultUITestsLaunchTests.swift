@@ -19,6 +19,8 @@ final class IDFAVaultUITestsLaunchTests: XCTestCase {
     @MainActor
     func testLaunch() throws {
         let app = XCUIApplication()
+        // 本人確認のダイアログを出さずに、ロック画面から解除までを流す
+        app.launchArguments += ["-ui-testing"]
         app.launch()
 
         // 起動直後のスクリーンショットをテスト結果に添付する
