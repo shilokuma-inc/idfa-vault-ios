@@ -33,3 +33,4 @@
 
 - 自分の IDFA を取れるのは iPhone・iPad だけ。visionOS の SDK には AdSupport（`ASIdentifierManager`）が無い（実行環境の AdSupport.framework は iPad の互換アプリ用）。macOS は Apple の資料のとおり `ATTrackingManager.trackingAuthorizationStatus` が常に `notDetermined` で、`requestTrackingAuthorization` は前面でもダイアログを出さずに一瞬で `notDetermined` を返し、IDFA は 0。Mac の Designed for iPad（`isiOSAppOnMac`）でも同じで、Vision Pro で iPad アプリとして動かしても取れなかった（2026-11-10）
 - `sensoryFeedback(_:trigger:)` は visionOS では 26.0 から（iOS 17・macOS 14 とずれる）（2026-11-10）
+- `INFOPLIST_KEY_NSUserTrackingUsageDescription` を `[sdk=iphoneos*]` などの条件付きだけで書くと、条件に当てはまらない macOS・visionOS の `Info.plist` にはキーが空の値（""）で入る。macOS・visionOS のバイナリも AppTrackingTransparency をリンクしているので、配信のときに ITMS-90738（Invalid purpose string value）の警告メールが来た。許可を求めないプラットフォームにも、文言は条件を付けずに入れる（2026-11-11）
