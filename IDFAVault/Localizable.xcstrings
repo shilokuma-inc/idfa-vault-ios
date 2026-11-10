@@ -71,12 +71,42 @@
         }
       }
     },
+    "Can't be retrieved because tracking isn't allowed" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "トラッキング未許可のため取得できません"
+          }
+        }
+      }
+    },
     "Can't be turned off" : {
       "localizations" : {
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "オフにできません"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャンセル"
+          }
+        }
+      }
+    },
+    "Check your connection and iCloud settings, and try again." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通信とiCloudの設定を確認して、もう一度お試しください。"
           }
         }
       }
@@ -111,6 +141,36 @@
         }
       }
     },
+    "Copy the IDFA of %@" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@のIDFAをコピー"
+          }
+        }
+      }
+    },
+    "Couldn't Delete the Data" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "データを削除できませんでした"
+          }
+        }
+      }
+    },
+    "Couldn't sync with iCloud. Pull down to try again." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudと同期できませんでした。下に引っ張ってもう一度お試しください。"
+          }
+        }
+      }
+    },
     "Couldn't verify your identity. Try again." : {
       "localizations" : {
         "ja" : {
@@ -121,12 +181,42 @@
         }
       }
     },
-    "Each device has its own IDFA, and it changes if you reset it." : {
+    "Delete" : {
       "localizations" : {
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "IDFAは端末ごとに異なり、リセットすると値が変わります。"
+            "value" : "削除"
+          }
+        }
+      }
+    },
+    "Delete All iCloud Sync Data" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudの同期データをすべて削除"
+          }
+        }
+      }
+    },
+    "Delete All iCloud Sync Data?" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudの同期データをすべて削除しますか？"
+          }
+        }
+      }
+    },
+    "Each device has its own IDFA, and it changes if you reset it. Synced data is updated automatically the next time each device opens the app." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFAは端末ごとに異なり、リセットすると値が変わります。同期データは次回起動時に自動で更新されます。"
           }
         }
       }
@@ -147,6 +237,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "画面収録・ミラーリング中は隠す"
+          }
+        }
+      }
+    },
+    "Hides the middle digits" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "途中の桁を伏せ字にします"
           }
         }
       }
@@ -211,6 +311,26 @@
         }
       }
     },
+    "Mask Other Devices' IDFA" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "他デバイスのIDFAを伏せ字にする"
+          }
+        }
+      }
+    },
+    "No other devices yet. Open IDFA Vault on your other devices signed in with the same Apple ID." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "まだ他のデバイスはありません。同じApple IDでサインインしている他のデバイスでIDFA Vaultを開いてください。"
+          }
+        }
+      }
+    },
     "Not Allowed" : {
       "localizations" : {
         "ja" : {
@@ -237,6 +357,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "未設定"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
           }
         }
       }
@@ -282,7 +412,6 @@
       }
     },
     "Place your finger on the Home button" : {
-      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -293,7 +422,6 @@
       }
     },
     "Place your finger on the Touch ID sensor" : {
-      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -304,7 +432,6 @@
       }
     },
     "Place your finger on the top button" : {
-      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -370,6 +497,76 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "共有"
+          }
+        }
+      }
+    },
+    "Shown only on devices with the same Apple ID" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同じApple IDのデバイスにだけ表示"
+          }
+        }
+      }
+    },
+    "Shows all digits" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全桁を表示します"
+          }
+        }
+      }
+    },
+    "Sign in to iCloud to see the IDFA of your other devices." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudにサインインすると、他のデバイスのIDFAも確認できます"
+          }
+        }
+      }
+    },
+    "Sync This Device's IDFA" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このデバイスのIDFAを同期"
+          }
+        }
+      }
+    },
+    "Syncing with iCloud…" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudと同期しています…"
+          }
+        }
+      }
+    },
+    "Tap a device to show all digits" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タップで全桁を表示"
+          }
+        }
+      }
+    },
+    "The IDFA of all your devices will be removed from iCloud. Devices that have sync turned on add theirs again the next time IDFA Vault is opened on them." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてのデバイスのIDFAがiCloudから削除されます。同期をオンにしているデバイスは、次にIDFA Vaultを開いたときに再び追加されます。"
           }
         }
       }
@@ -505,7 +702,6 @@
       }
     },
     "Verifying with Optic ID…" : {
-      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -521,6 +717,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "他のデバイスのIDFAは、このままでも確認できます"
+          }
+        }
+      }
+    },
+    "Your IDFA is stored only in your iCloud (private database). No one else, including the developer, can see it." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFAはあなたのiCloud（非公開データベース）にのみ保存され、開発者を含む第三者は閲覧できません。"
+          }
+        }
+      }
+    },
+    "iCloud · %@" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud · %@"
+          }
+        }
+      }
+    },
+    "iCloud · Synced %@" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud · %@に同期"
           }
         }
       }

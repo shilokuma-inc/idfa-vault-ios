@@ -62,10 +62,45 @@ final class IDFAVaultUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["ownIdentifier"].waitForExistence(timeout: 5))
     }
 
+    /// 同じ Apple ID の他の端末は伏せ字で出し、タップで全桁と切り替える。すべて削除すると一覧から消える
     @MainActor
-    private func launch(tracking: String) -> XCUIApplication {
+    func testOtherDevicesAreMaskedAndCanBeDeleted() throws {
+        let app = launch(tracking: "authorized")
+
+        let masked = app.staticTexts["A1C4••••-••••-9F21"]
+        XCTAssertTrue(masked.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Can't be retrieved because tracking isn't allowed"].exists)
+
+        masked.tap()
+        XCTAssertTrue(app.staticTexts["A1C4B83E-5D20-4F7A-8C61-0E9B2D4C9F21"].waitForExistence(timeout: 3))
+
+        app.buttons["settings"].tap()
+        let deleteAll = app.buttons["deleteAll"]
+        XCTAssertTrue(deleteAll.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.switches["syncsThisDevice"].exists)
+        deleteAll.tap()
+        app.alerts.buttons["Delete"].tap()
+        app.buttons["Back"].tap()
+
+        XCTAssertTrue(app.staticTexts["ownIdentifier"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["A1C4••••-••••-9F21"].exists)
+    }
+
+    /// iCloud にサインインしていなければ、サインインの案内を出す
+    @MainActor
+    func testSignedOutOfICloudShowsGuidance() throws {
+        let app = launch(tracking: "authorized", iCloud: "noAccount")
+
+        XCTAssertTrue(app.staticTexts["Sign in to iCloud to see the IDFA of your other devices."].waitForExistence(timeout: 10))
+    }
+
+    @MainActor
+    private func launch(tracking: String, iCloud: String = "devices") -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments += ["-ui-testing", "-ui-testing-tracking", tracking, "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launchArguments += [
+            "-ui-testing", "-ui-testing-tracking", tracking, "-ui-testing-icloud", iCloud,
+            "-AppleLanguages", "(en)", "-AppleLocale", "en_US"
+        ]
         app.launch()
         return app
     }

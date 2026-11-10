@@ -13,6 +13,8 @@ final class AppSettings {
     private enum Key {
         static let autoLock = "settings.autoLock"
         static let hidesWhileCapturing = "settings.hidesWhileCapturing"
+        static let masksOtherDevices = "settings.masksOtherDevices"
+        static let syncsThisDevice = "settings.syncsThisDevice"
     }
 
     /// 自動ロックのタイミング（初期値: すぐに）
@@ -25,11 +27,23 @@ final class AppSettings {
         didSet { defaults.set(hidesWhileCapturing, forKey: Key.hidesWhileCapturing) }
     }
 
+    /// 他デバイスの IDFA を伏せ字にする（初期値: オン）
+    var masksOtherDevices: Bool {
+        didSet { defaults.set(masksOtherDevices, forKey: Key.masksOtherDevices) }
+    }
+
+    /// このデバイスの IDFA を同期（初期値: オン）。切り替えは AppModel.setSyncsThisDevice で行う（オフでレコードを消すため）
+    var syncsThisDevice: Bool {
+        didSet { defaults.set(syncsThisDevice, forKey: Key.syncsThisDevice) }
+    }
+
     @ObservationIgnored private let defaults: UserDefaults
 
     init(defaults: UserDefaults) {
         self.defaults = defaults
         autoLock = defaults.string(forKey: Key.autoLock).flatMap(AutoLockTiming.init(rawValue:)) ?? .immediately
         hidesWhileCapturing = defaults.object(forKey: Key.hidesWhileCapturing) as? Bool ?? true
+        masksOtherDevices = defaults.object(forKey: Key.masksOtherDevices) as? Bool ?? true
+        syncsThisDevice = defaults.object(forKey: Key.syncsThisDevice) as? Bool ?? true
     }
 }

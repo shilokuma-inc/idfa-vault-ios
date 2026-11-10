@@ -3,7 +3,7 @@
 //  IDFAVault
 //
 //  iPhone のホーム（デザインの Home / Denied）。大見出し「IDFA」、右上にロック・設定、この端末の IDFA のインゴット。
-//  トラッキングが許可されていなければ、許可する 3 つの手順と「設定を開く」を出す。
+//  トラッキングが許可されていなければ、許可する 3 つの手順と「設定を開く」を出す。その下に同じ Apple ID の他の端末。
 //
 
 import SwiftUI
@@ -22,6 +22,7 @@ struct PhoneHomeView: View {
                         TrackingDeniedSection()
                             .padding(.top, 8)
                     }
+                    OtherDevicesSection()
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
@@ -30,6 +31,9 @@ struct PhoneHomeView: View {
                 .frame(maxWidth: .infinity)
             }
             .scrollBounceBehavior(.basedOnSize)
+            .refreshable {
+                await model.refreshDevices()
+            }
             .background(HeatTintBackground())
             .hidesNavigationBar()
             .navigationDestination(isPresented: $showsSettings) {

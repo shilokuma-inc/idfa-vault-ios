@@ -2,7 +2,7 @@
 //  SettingsView.swift
 //  IDFAVault
 //
-//  設定（デザインの Settings）。SECURITY / DISPLAY のグループ（ICLOUD は同期を入れるときに足す）。
+//  設定（デザインの Settings）。SECURITY / DISPLAY / ICLOUD の 3 グループ（仕様書 3.5）。
 //
 
 import SwiftUI
@@ -49,6 +49,8 @@ struct SettingsView: View {
 /// 設定の項目。iPhone の設定画面と、iPad・Mac の設定（シート・ウインドウ）で共通に使う
 struct SettingsForm: View {
     @Environment(AppModel.self) private var model
+    @State private var confirmsDeletion = false
+    @State private var deletionFailed = false
 
     var body: some View {
         @Bindable var settings = model.settings
@@ -72,6 +74,14 @@ struct SettingsForm: View {
                 .padding(.horizontal, 4)
                 .padding(.top, 8)
             VStack(spacing: 0) {
+                Toggle(isOn: $settings.masksOtherDevices) {
+                    SettingLabel(title: "Mask Other Devices' IDFA", detail: "Tap a device to show all digits")
+                }
+                .toggleStyle(.chamfer)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 11)
+                .accessibilityIdentifier("masksOtherDevices")
+                SettingsDivider()
                 Toggle(isOn: $settings.hidesWhileCapturing) {
                     SettingLabel(title: "Hide During Screen Recording or Mirroring")
                 }
@@ -82,11 +92,72 @@ struct SettingsForm: View {
             }
             .plateBackground(chamfer: 16)
 
-            Text("Each device has its own IDFA, and it changes if you reset it.")
+            SectionHeader(title: "ICLOUD")
+                .padding(.horizontal, 4)
+                .padding(.top, 8)
+            VStack(spacing: 0) {
+                // IDFA を取得できないプラットフォーム（visionOS）では、この端末のレコードを書かないので出さない
+                if model.supportsOwnIdentifier {
+                    Toggle(isOn: syncsThisDevice) {
+                        SettingLabel(title: "Sync This Device's IDFA", detail: "Shown only on devices with the same Apple ID")
+                    }
+                    .toggleStyle(.chamfer)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 11)
+                    .accessibilityIdentifier("syncsThisDevice")
+                    SettingsDivider()
+                }
+                Button(role: .destructive) {
+                    confirmsDeletion = true
+                } label: {
+                    Text("Delete All iCloud Sync Data")
+                        .font(.callout)
+                        .foregroundStyle(HeatTint.destructive)
+                        .padding(.horizontal, 16)
+                        .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("deleteAll")
+            }
+            .plateBackground(chamfer: 16)
+
+            // swiftlint:disable:next line_length
+            Text("Each device has its own IDFA, and it changes if you reset it. Synced data is updated automatically the next time each device opens the app.")
                 .font(.caption)
                 .foregroundStyle(HeatTint.tertiaryText)
                 .lineSpacing(3)
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 4)
+        }
+        .alert(Text("Delete All iCloud Sync Data?"), isPresented: $confirmsDeletion) {
+            Button(role: .destructive) {
+                Task { deletionFailed = !(await model.deleteAllSyncedData()) }
+            } label: {
+                Text("Delete")
+            }
+            Button(role: .cancel) {} label: {
+                Text("Cancel")
+            }
+        } message: {
+            // swiftlint:disable:next line_length
+            Text("The IDFA of all your devices will be removed from iCloud. Devices that have sync turned on add theirs again the next time IDFA Vault is opened on them.")
+        }
+        .alert(Text("Couldn't Delete the Data"), isPresented: $deletionFailed) {
+            Button(role: .cancel) {} label: {
+                Text("OK")
+            }
+        } message: {
+            Text("Check your connection and iCloud settings, and try again.")
+        }
+    }
+
+    /// オフにしたら iCloud のこの端末のレコードを消すので、設定の値を直接は書き換えない
+    private var syncsThisDevice: Binding<Bool> {
+        Binding {
+            model.settings.syncsThisDevice
+        } set: { isOn in
+            Task { await model.setSyncsThisDevice(isOn) }
         }
     }
 

@@ -12,11 +12,16 @@ struct AppDependencies {
     var authenticator: any Authenticating
     var tracking: any TrackingProviding
     var clipboard: any ClipboardWriting
+    var deviceInfo: any DeviceInfoProviding
+    var sync: any DeviceSyncing
     var defaults: UserDefaults
     /// ロックを解除した状態で始めるか（スクリーンショットの撮影）
     var startsUnlocked = false
     /// ロック解除からトラッキングの許可のダイアログを出すまでの待ち時間
     var trackingPromptDelay: Duration = .milliseconds(600)
+    /// 前面でロックを解除しているあいだ、他の端末の一覧を読み直す間隔。
+    /// 別の端末で起動したら、数秒〜数十秒で一覧に出るようにする（仕様書 9 章の受け入れ条件）
+    var syncRefreshInterval: Duration = .seconds(20)
 
     /// 起動引数と環境変数から、使うものを決める
     static func resolve(processInfo: ProcessInfo = .processInfo) -> AppDependencies {
@@ -40,6 +45,8 @@ struct AppDependencies {
             authenticator: LocalAuthenticator(),
             tracking: SystemTrackingProvider(),
             clipboard: SystemClipboard(),
+            deviceInfo: SystemDeviceInfo(),
+            sync: CloudKitDeviceSync(),
             defaults: .standard
         )
     }
@@ -50,6 +57,8 @@ struct AppDependencies {
             authenticator: StubAuthenticator(kind: .faceID, outcome: .cancelled),
             tracking: StubTrackingProvider(status: .notDetermined),
             clipboard: NoopClipboard(),
+            deviceInfo: StubDeviceInfo(),
+            sync: StubDeviceSync(availability: .noAccount),
             defaults: .volatile(named: "test-host")
         )
     }
@@ -64,6 +73,8 @@ struct AppDependencies {
                 identifier: UITesting.sampleIdentifier
             ),
             clipboard: NoopClipboard(),
+            deviceInfo: StubDeviceInfo(),
+            sync: StubDeviceSync(records: StubDeviceSync.demoDevices(now: .now)),
             defaults: .volatile(named: "screenshot-demo"),
             startsUnlocked: scene != .lock
         )
@@ -77,10 +88,16 @@ struct AppDependencies {
             .flatMap(AuthenticationOutcome.init(argument:)) ?? .success
         let biometry = UITesting.value(after: UITesting.biometryArgument, in: arguments)
             .flatMap(BiometryKind.init(argument:)) ?? .faceID
+        let iCloud = UITesting.value(after: UITesting.iCloudArgument, in: arguments)
+        let sync = iCloud == "noAccount"
+            ? StubDeviceSync(availability: .noAccount)
+            : StubDeviceSync(records: iCloud == "empty" ? [] : StubDeviceSync.demoDevices(now: .now))
         return AppDependencies(
             authenticator: StubAuthenticator(kind: biometry, outcome: outcome),
             tracking: StubTrackingProvider(status: status, identifier: UITesting.sampleIdentifier),
             clipboard: SystemClipboard(),
+            deviceInfo: StubDeviceInfo(),
+            sync: sync,
             defaults: .volatile(named: "ui-testing"),
             trackingPromptDelay: .zero
         )
@@ -96,6 +113,8 @@ enum UITesting {
     static let authenticationArgument = "-ui-testing-authentication"
     /// 認証方式（faceID / touchID / touchIDTopButton / touchIDMac / opticID / none）を続けて渡す
     static let biometryArgument = "-ui-testing-biometry"
+    /// iCloud の状態（devices（既定）/ empty / noAccount）を続けて渡す
+    static let iCloudArgument = "-ui-testing-icloud"
     // swiftlint:disable:next force_unwrapping
     static let sampleIdentifier = AdvertisingIdentifier("6D92078A-8246-4BA4-AE5B-76104861E7DC")!
 
@@ -215,5 +234,91 @@ final class StubTrackingProvider: TrackingProviding {
 struct NoopClipboard: ClipboardWriting {
     func copy(_ text: String, lifetime: TimeInterval) {
         // 何もしない
+    }
+}
+
+/// 決まった端末の情報
+struct StubDeviceInfo: DeviceInfoProviding {
+    var deviceID = "this-device"
+    var platform: DevicePlatform = .current
+    var name = DeviceKind.current == .mac ? "MacBook Pro" : (DeviceKind.current == .iPad ? "iPad Pro" : "iPhone 16 Pro")
+
+    func displayName() async -> String {
+        name
+    }
+}
+
+/// メモリの上だけで端末のレコードを持つ同期
+final class StubDeviceSync: DeviceSyncing {
+    var availabilityResult: SyncAvailability
+    private(set) var records: [String: DeviceRecord]
+    private(set) var saveCount = 0
+    var failsNextRequest = false
+
+    init(availability: SyncAvailability = .available, records: [DeviceRecord] = []) {
+        availabilityResult = availability
+        self.records = Dictionary(uniqueKeysWithValues: records.map { ($0.id, $0) })
+    }
+
+    func availability() async -> SyncAvailability {
+        availabilityResult
+    }
+
+    func save(_ record: DeviceRecord) async throws {
+        try failIfNeeded()
+        saveCount += 1
+        records[record.id] = record
+    }
+
+    func delete(deviceID: String) async throws {
+        try failIfNeeded()
+        records[deviceID] = nil
+    }
+
+    func fetchAll() async throws -> [DeviceRecord] {
+        try failIfNeeded()
+        return Array(records.values)
+    }
+
+    func deleteAll() async throws {
+        try failIfNeeded()
+        records = [:]
+    }
+
+    private func failIfNeeded() throws {
+        if failsNextRequest {
+            failsNextRequest = false
+            throw URLError(.notConnectedToInternet)
+        }
+    }
+
+    /// 撮影と UI テストで出す、ほかの端末
+    static func demoDevices(now: Date) -> [DeviceRecord] {
+        [
+            DeviceRecord(
+                id: "demo-ipad",
+                name: "iPad Pro",
+                platform: .iPadOS,
+                identifier: AdvertisingIdentifier("A1C4B83E-5D20-4F7A-8C61-0E9B2D4C9F21"),
+                trackingStatus: .authorized,
+                updatedAt: now.addingTimeInterval(-120)
+            ),
+            DeviceRecord(
+                id: "demo-mac",
+                name: "MacBook Pro",
+                platform: .macOS,
+                identifier: AdvertisingIdentifier("C47D2E10-93AB-4F61-B8D2-5E0A7C3F1B66"),
+                trackingStatus: .authorized,
+                updatedAt: now.addingTimeInterval(-3_600)
+            ),
+            DeviceRecord(
+                id: "demo-ipad-mini",
+                name: "iPad mini",
+                platform: .iPadOS,
+                identifier: nil,
+                trackingStatus: .denied,
+                updatedAt: now.addingTimeInterval(-86_400 * 3)
+            )
+        ]
     }
 }

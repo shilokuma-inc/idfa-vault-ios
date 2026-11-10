@@ -117,6 +117,9 @@ macOS・visionOS のアップロードは、App Store Connect のアプリにそ
 2. App ID `jp.shilokuma.IDFAVault` の Capabilities で iCloud（CloudKit）を有効にし、上のコンテナを割り当てる（App ID が無ければ Explicit で登録する。Export でも自動で登録される）
 3. CloudKit Console の Development 環境に、レコードタイプ `DeviceIDFA` とフィールド（`deviceID`・`deviceName`・`platform`・`idfa`・`attStatus` は String、`updatedAt` は Date/Time）を作り、Deploy Schema Changes で Production に反映する。TestFlight と App Store の版は Production を使う
 
+- レコードは非公開データベースの専用のゾーン `Devices` に、端末ごとに 1 つ（レコード名は端末の UUID）置きます（[IDFAVault/Sync/DeviceSyncService.swift](IDFAVault/Sync/DeviceSyncService.swift)）。読み込みはクエリではなくゾーンの変更の取得なので、インデックスは要りません。「すべて削除」はゾーンごと消します
+- 他の端末の追加・更新は、前面でロックを解除しているあいだ 20 秒ごとに読み直して反映します（push の通知は使っていません）
+
 - 署名せずに作った archive には entitlement が入らないため、`_archive.yml` が archive の後に [Tools/embed_archive_entitlements.py](Tools/embed_archive_entitlements.py) でアドホック署名して iCloud の entitlement を埋め込み、Export した IPA・pkg に残ったかを確かめます。App ID の iCloud が無効だと、この確認で止まります
 - macOS は iCloud の entitlement を profile の無いアドホック署名で付けると起動できないため、CI のテストと archive のアドホック署名（`IDFAVAULT_ADHOC_SIGNING=YES`）では付けません（[Configs/Project.xcconfig](Configs/Project.xcconfig)）
 

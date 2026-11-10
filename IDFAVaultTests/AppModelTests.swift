@@ -49,8 +49,11 @@ struct AppModelTests {
             authenticator: authenticator,
             tracking: tracking,
             clipboard: clipboard,
+            deviceInfo: StubDeviceInfo(),
+            sync: StubDeviceSync(),
             defaults: .volatile(named: "tests.\(UUID().uuidString)"),
-            trackingPromptDelay: .zero
+            trackingPromptDelay: .zero,
+            syncRefreshInterval: .seconds(3_600)
         ))
         model.settings.autoLock = autoLock
         return model
