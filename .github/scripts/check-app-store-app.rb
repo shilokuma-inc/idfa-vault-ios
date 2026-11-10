@@ -52,7 +52,7 @@ guide = <<~MARKDOWN
   | ユーザアクセス | フルアクセス |
 
   - SKU はユーザーには見えない社内用の ID で、後から変更できません。迷わないよう Bundle ID と同じ値にしています
-  - バンドル ID の候補に出てこない場合は、Developer Portal への登録がまだです。このワークフローの Export が一度成功すると登録されます
+  - バンドル ID の候補に出てこない場合は、Developer Portal への登録がまだです。このワークフローの最初のジョブ（bundle-id）が登録するので、その Job Summary を見てください
 MARKDOWN
 
 puts guide

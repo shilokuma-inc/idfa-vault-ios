@@ -98,7 +98,8 @@ TestFlight の内部テスターの Secret（任意）は「5. App Store Connect
 
 ### 5. App Store Connect にアプリを作成する
 
-Bundle ID・証明書・プロビジョニングプロファイルは、Export のときに API Key で自動的に作成されます（`-allowProvisioningUpdates`）。
+Bundle ID（App ID）は、Archive / Upload の最初のジョブ（`bundle-id`）が API Key で登録し、entitlements が求める iCloud（CloudKit）の capability も有効にします（[.github/scripts/ensure-bundle-id.rb](.github/scripts/ensure-bundle-id.rb)。2 回目以降は確認だけ）。登録すると「新規アプリ」のバンドル ID の候補に出るので、アプリを作る前に Archive か Upload を一度流します（Actions → Archive → Run workflow）。
+証明書・プロビジョニングプロファイルは、Export のときに API Key で自動的に作成されます（`-allowProvisioningUpdates`）。
 App Store Connect でのアプリ作成だけは API で行えないため、Web 画面で行います。
 
 アプリを作らずに `develop` へ push しても問題ありません。Upload ワークフローがアップロードの前にアプリの有無を確認し（[.github/scripts/check-app-store-app.rb](.github/scripts/check-app-store-app.rb)）、アプリが無ければ「新規アプリ」画面に入力する値（名前・バンドル ID・SKU など）を Job Summary に表示して止まります。表示された値でアプリを作成してから、ワークフローを再実行してください。
@@ -111,16 +112,16 @@ macOS・visionOS のアップロードは、App Store Connect のアプリにそ
 #### iCloud（CloudKit）
 
 同じ Apple ID の端末の IDFA は、CloudKit のコンテナ `iCloud.jp.shilokuma.IDFAVault` の非公開データベースで同期します（[IDFAVault/IDFAVault.entitlements](IDFAVault/IDFAVault.entitlements)）。
-コンテナの作成と App ID への割り当て、スキーマの本番環境への反映は API Key では行えないので、Apple Developer と CloudKit Console で行います。
+App ID の登録と iCloud（CloudKit）の有効化は CI が API で行います（上の `bundle-id` ジョブ）。コンテナの作成と App ID への割り当て、スキーマの本番環境への反映は API Key では行えないので、Apple Developer と CloudKit Console で行います。
 
 1. Apple Developer の Certificates, Identifiers & Profiles → Identifiers → iCloud Containers で `iCloud.jp.shilokuma.IDFAVault` を作る
-2. App ID `jp.shilokuma.IDFAVault` の Capabilities で iCloud（CloudKit）を有効にし、上のコンテナを割り当てる（App ID が無ければ Explicit で登録する。Export でも自動で登録される）
+2. `bundle-id` ジョブが App ID `jp.shilokuma.IDFAVault` を登録した後に、App ID を開いて iCloud の「Edit」で上のコンテナを割り当てる（iCloud を有効にした回の Job Summary にも手順が出ます）
 3. CloudKit Console の Development 環境に、レコードタイプ `DeviceIDFA` とフィールド（`deviceID`・`deviceName`・`platform`・`idfa`・`attStatus` は String、`updatedAt` は Date/Time）を作り、Deploy Schema Changes で Production に反映する。TestFlight と App Store の版は Production を使う
 
 - レコードは非公開データベースの専用のゾーン `Devices` に、端末ごとに 1 つ（レコード名は端末の UUID）置きます（[IDFAVault/Sync/DeviceSyncService.swift](IDFAVault/Sync/DeviceSyncService.swift)）。読み込みはクエリではなくゾーンの変更の取得なので、インデックスは要りません。「すべて削除」はゾーンごと消します
 - 他の端末の追加・更新は、前面でロックを解除しているあいだ 20 秒ごとに読み直して反映します（push の通知は使っていません）
 
-- 署名せずに作った archive には entitlement が入らないため、`_archive.yml` が archive の後に [Tools/embed_archive_entitlements.py](Tools/embed_archive_entitlements.py) でアドホック署名して iCloud の entitlement を埋め込み、Export した IPA・pkg に残ったかを確かめます。App ID の iCloud が無効だと、この確認で止まります
+- 署名せずに作った archive には entitlement が入らないため、`_archive.yml` が archive の後に [Tools/embed_archive_entitlements.py](Tools/embed_archive_entitlements.py) でアドホック署名して iCloud の entitlement を埋め込み、Export した IPA・pkg に残ったかを確かめます。App ID にコンテナが割り当てられていないと、この確認で止まります
 - macOS は iCloud の entitlement を profile の無いアドホック署名で付けると起動できないため、CI のテストと archive のアドホック署名（`IDFAVAULT_ADHOC_SIGNING=YES`）では付けません（[Configs/Project.xcconfig](Configs/Project.xcconfig)）
 
 #### TestFlight の内部テスター
