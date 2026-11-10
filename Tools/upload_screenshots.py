@@ -36,7 +36,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from app_store_config import MAX_SCREENSHOTS, bundle_id, languages, parse_list
+from app_store_config import MAX_SCREENSHOTS, PLATFORM_NAMES, bundle_id, languages, parse_list
 from app_store_connect import AppStoreConnect
 
 
@@ -52,6 +52,13 @@ def main() -> int:
     parser.add_argument("--display-type", required=True, help="App Store Connect の表示サイズ（例: APP_IPHONE_67）")
     parser.add_argument("--languages", help="対象の言語（カンマ区切り）。省略すると全言語")
     parser.add_argument("--app-version", help="反映先のバージョン。省略すると編集できるバージョンを自動で選ぶ")
+    parser.add_argument(
+        "--platform",
+        choices=("IOS", "MAC_OS", "VISION_OS"),
+        default="IOS",
+        help="反映先のプラットフォームの版（既定は IOS。Mac は APP_DESKTOP、visionOS は APP_APPLE_VISION_PRO）。"
+             "アプリにそのプラットフォームが無ければ何もしない",
+    )
     parser.add_argument("--key-id", default=os.environ.get("APP_STORE_CONNECT_KEY_ID"))
     parser.add_argument("--issuer-id", default=os.environ.get("APP_STORE_CONNECT_ISSUER_ID"))
     parser.add_argument(
@@ -85,9 +92,13 @@ def main() -> int:
     )
 
     app = client.find_app(args.bundle_id or bundle_id())
-    version = client.find_version(app["id"], args.app_version)
+    # macOS・visionOS は、App Store Connect のアプリにそのプラットフォームを足していなければ飛ばす（足すのは Web だけ）
+    if args.platform != "IOS" and not client.versions(app["id"], args.platform):
+        print(f"{app['attributes']['name']} に {PLATFORM_NAMES[args.platform]} の版が無いので飛ばします")
+        return 0
+    version = client.find_version(app["id"], args.app_version, platform=args.platform)
     version_string = version["attributes"]["versionString"]
-    print(f"対象: {app['attributes']['name']} {version_string} "
+    print(f"対象: {app['attributes']['name']} {PLATFORM_NAMES[args.platform]} {version_string} "
           f"({version['attributes']['appStoreState']}) / {args.display_type}")
     if args.dry_run:
         print("--dry-run: App Store Connect には何も書き込みません")

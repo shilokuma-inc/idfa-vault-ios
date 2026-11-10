@@ -46,6 +46,10 @@ on:
         description: 'release/** 以外のブランチでも撮る（撮影の仕組みを確かめるときだけ。反映はしない）'
         type: boolean
         default: false
+      committed_only:
+        description: '撮らずに、AppStore/screenshots に置いた画像（Mac・visionOS）だけを反映する（どのブランチでも）'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -65,14 +69,17 @@ jobs:
       upload: ${{ steps.matrix.outputs.upload }}
       has_derive: ${{ steps.matrix.outputs.has_derive }}
       should_upload: ${{ steps.matrix.outputs.should_upload }}
+      committed: ${{ steps.matrix.outputs.committed }}
 
     steps:
       - name: Check branch
         env:
           REF: ${{ github.ref }}
           ALLOW_NON_RELEASE: ${{ inputs.allow_non_release }}
+          COMMITTED_ONLY: ${{ inputs.committed_only }}
         run: |
-          if [[ "$REF" != refs/heads/release/* && "$ALLOW_NON_RELEASE" != "true" ]]; then
+          # 置いた画像だけを反映するときは撮らないので、どのブランチでもよい（画像は PR でレビューしてから置く）
+          if [[ "$REF" != refs/heads/release/* && "$ALLOW_NON_RELEASE" != "true" && "$COMMITTED_ONLY" != "true" ]]; then
             echo "::error::スクリーンショットはリリースのときだけ撮ります。release/** ブランチを選んで実行してください（今: $REF）"
             exit 1
           fi
@@ -89,6 +96,7 @@ jobs:
           LANGUAGES: ${{ inputs.languages }}
           REF: ${{ github.ref }}
           UPLOAD: ${{ inputs.upload }}
+          COMMITTED_ONLY: ${{ inputs.committed_only }}
           ENABLE_DELIVERY: ${{ vars.ENABLE_DELIVERY }}
         run: |
           set -euo pipefail
@@ -108,11 +116,19 @@ jobs:
             else
               echo "should_upload=false"
             fi
+            # 置いた画像（AppStore/screenshots）は、release/** で撮るときと committed_only のときに反映する
+            if [[ "$UPLOAD" == "true" && "$ENABLE_DELIVERY" != "false" && -d AppStore/screenshots \
+              && ( "$REF" == refs/heads/release/* || "$COMMITTED_ONLY" == "true" ) ]]; then
+              echo "committed=true"
+            else
+              echo "committed=false"
+            fi
           } >> "$GITHUB_OUTPUT"
 
   capture:
     name: capture (${{ matrix.label }})
     needs: plan
+    if: ${{ !inputs.committed_only }}
     # runner と Xcode は表示サイズごとに screenshots.json の runsOn / xcodeVersion で決める
     runs-on: ${{ matrix.runs_on }}
     timeout-minutes: 90
@@ -173,7 +189,7 @@ jobs:
   derive:
     name: derive (${{ matrix.label }})
     needs: [plan, capture]
-    if: ${{ !cancelled() && needs.plan.outputs.has_derive == 'true' }}
+    if: ${{ !cancelled() && !inputs.committed_only && needs.plan.outputs.has_derive == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -227,7 +243,7 @@ jobs:
     needs: [plan, capture, derive]
     # 撮れた表示サイズだけでも反映できるよう、ほかの表示サイズが失敗していても進む。
     # 撮影が途中で失敗した表示サイズも artifact は残るので、反映の前に中身を検査して落とす
-    if: ${{ !cancelled() && needs.plan.outputs.should_upload == 'true' }}
+    if: ${{ !cancelled() && !inputs.committed_only && needs.plan.outputs.should_upload == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -348,6 +364,100 @@ jobs:
             fi
             if [ -f "$RUNNER_TEMP/upload.log" ]; then
               echo
+              echo '```'
+              cat "$RUNNER_TEMP/upload.log"
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  committed:
+    # Mac・visionOS のように、このワークフローで撮れない表示サイズは、撮影モード（-screenshot-demo）で手元で撮って
+    # AppStore/screenshots/<表示サイズ>/<言語>/ に置く（README の「スクリーンショット」）。ここでは撮らずに、置いた画像を
+    # そのプラットフォームの版に反映する。置いた言語だけ反映し、ほかの言語ではプライマリ言語の画像が使われる
+    name: upload (committed)
+    needs: plan
+    if: ${{ needs.plan.outputs.committed == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Verify screenshots
+        run: |
+          set -euo pipefail
+          for directory in AppStore/screenshots/*/; do
+            display_type=$(basename "$directory")
+            case "$display_type" in
+              APP_DESKTOP) sizes=2880x1800,2560x1600,1440x900,1280x800 ;;
+              APP_APPLE_VISION_PRO) sizes=3840x2160 ;;
+              *)
+                echo "::error::${display_type} は置いた画像では扱っていません（APP_DESKTOP・APP_APPLE_VISION_PRO だけ）"
+                exit 1
+                ;;
+            esac
+            python3 Tools/verify_screenshots.py --directory "${directory%/}" --sizes "$sizes"
+          done
+
+      - name: Create Private Key
+        env:
+          APPLE_API_KEY_BASE64: ${{ secrets.APPLE_API_KEY_BASE64 }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/private_keys"
+          printf '%s' "$APPLE_API_KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/private_keys/AuthKey.p8"
+
+      - name: Upload to App Store Connect
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+          APP_STORE_CONNECT_PRIVATE_KEY_PATH: ${{ runner.temp }}/private_keys/AuthKey.p8
+          APP_VERSION: ${{ inputs.app_version }}
+          MISSING_LOCALES: ${{ inputs.missing_locales }}
+          # visionOS（3840x2160）は Apple 側の取り込みに 5 分以上かかることがある
+          SCREENSHOT_DELIVERY_TIMEOUT: 1200
+        run: |
+          set -euo pipefail
+          python3 -m venv .venv
+          .venv/bin/pip install --quiet --disable-pip-version-check pyjwt cryptography
+          # 1 つの表示サイズが失敗しても、残りの表示サイズは流す（最後にまとめて失敗にする）
+          failed=()
+          for directory in AppStore/screenshots/*/; do
+            display_type=$(basename "$directory")
+            case "$display_type" in
+              APP_DESKTOP) platform=MAC_OS ;;
+              APP_APPLE_VISION_PRO) platform=VISION_OS ;;
+            esac
+            languages=$(find "$directory" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort | paste -sd, -)
+            options=(--missing-locales "$MISSING_LOCALES" --languages "$languages")
+            if [ -n "$APP_VERSION" ]; then
+              options+=(--app-version "$APP_VERSION")
+            fi
+            if ! .venv/bin/python -u Tools/upload_screenshots.py \
+              --screenshots-dir "${directory%/}" \
+              --display-type "$display_type" \
+              --platform "$platform" \
+              "${options[@]}" \
+              2>&1 | tee -a "$RUNNER_TEMP/upload.log"; then
+              failed+=("$display_type")
+            fi
+          done
+          if [ "${#failed[@]}" -gt 0 ]; then
+            echo "::error::反映できなかった表示サイズ: ${failed[*]}"
+            exit 1
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          set -euo pipefail
+          {
+            echo "## スクリーンショット: 置いた画像（Mac・visionOS）"
+            echo
+            if [ -f "$RUNNER_TEMP/upload.log" ]; then
               echo '```'
               cat "$RUNNER_TEMP/upload.log"
               echo '```'
