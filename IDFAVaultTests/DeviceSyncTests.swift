@@ -53,7 +53,7 @@ struct DeviceSyncTests {
         #expect(own?.identifier == Self.identifier)
         #expect(own?.trackingStatus == .authorized)
         #expect(
-            model.devices.otherDevices.map(\.id) == ["demo-ipad", "demo-mac", "demo-iphone", "demo-ipad-mini"],
+            model.devices.otherDevices.map(\.id) == ["demo-ipad", "demo-iphone-15", "demo-iphone", "demo-ipad-mini"],
             "自分の端末は一覧に出さない"
         )
         #expect(model.devices.lastSyncedAt != nil)

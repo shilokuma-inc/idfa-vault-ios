@@ -28,6 +28,17 @@ enum DevicePlatform: String, Sendable, CaseIterable {
         }
     }
 
+    /// アプリが自分の IDFA を取れるプラットフォームか（iPhone・iPad だけ。Mac・visionOS は取れない）。
+    /// 一覧には取れるプラットフォームのレコードだけを出す
+    var providesAdvertisingIdentifier: Bool {
+        switch self {
+        case .iOS, .iPadOS:
+            true
+        case .macOS, .visionOS:
+            false
+        }
+    }
+
     /// 端末の種類（アイコンに使う）
     var kind: DeviceKind {
         switch self {
@@ -46,7 +57,7 @@ enum DevicePlatform: String, Sendable, CaseIterable {
 struct DeviceRecord: Identifiable, Hashable, Sendable {
     /// アプリが作って Keychain に保存した端末の UUID（レコード名にも使う）
     let id: String
-    /// 表示名。iOS はモデル名（個人名が入らないよう、UIDevice の name は使わない）、Mac はコンピュータ名
+    /// 表示名。iOS はモデル名（個人名が入らないよう、UIDevice の name は使わない）。Mac・visionOS はレコードを書かない
     var name: String
     var platform: DevicePlatform
     /// IDFA。トラッキングが許可されていない・全桁 0 のときは nil（全桁 0 は同期しない。仕様書 3.2）
