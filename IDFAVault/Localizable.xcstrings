@@ -502,7 +502,6 @@
       }
     },
     "Place your finger on the Home button" : {
-      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -513,7 +512,6 @@
       }
     },
     "Place your finger on the Touch ID sensor" : {
-      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -524,7 +522,6 @@
       }
     },
     "Place your finger on the top button" : {
-      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -845,7 +842,6 @@
       }
     },
     "Verifying with Optic ID…" : {
-      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -891,6 +887,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "iCloud · 最終同期 %@"
+          }
+        }
+      }
+    },
+    "visionOS doesn't provide the advertising identifier (IDFA) to visionOS apps. You can see and copy the IDFA of your other devices below." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "visionOSでは、アプリは広告識別子（IDFA）を取得できません。他のデバイスのIDFAは下で確認・コピーできます。"
           }
         }
       }

@@ -14,9 +14,49 @@ struct LockView: View {
     var body: some View {
         #if os(macOS)
         macBody
+        #elseif os(visionOS)
+        visionBody
         #else
         phoneBody
         #endif
+    }
+
+    /// visionOS のロック（デザインの Vision の左）。縦長の板に Optic ID のマークと解除ボタン
+    private var visionBody: some View {
+        VStack(spacing: 0) {
+            LockHeading(titleSize: 28)
+            BiometryPlate(symbolName: model.biometry.symbolName, size: 148, chamfer: 42, rimWidth: 8)
+                .padding(.top, 34)
+            statusText
+                .padding(.top, 20)
+            Spacer(minLength: 20)
+            VStack(spacing: 12) {
+                Button {
+                    Task { await model.unlock() }
+                } label: {
+                    Text(model.biometry.unlockTitle)
+                        .font(.system(size: 17, weight: .bold))
+                }
+                .buttonStyle(.metalPrimary)
+                .accessibilityIdentifier("unlock")
+                Button {
+                    Task { await model.unlock() }
+                } label: {
+                    Text(BiometryKind.passcodeButtonTitle)
+                        .font(.system(size: 15, weight: .semibold))
+                }
+                .buttonStyle(.metal(.secondary, chamfer: 10, minHeight: 45))
+            }
+            .disabled(model.isAuthenticating)
+        }
+        .padding(.horizontal, 30)
+        .padding(.top, 40)
+        .padding(.bottom, 30)
+        .frame(width: 360, height: 520)
+        .background {
+            VisionPanelBackground()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     /// Mac のロック画面（デザインの MacLock）。中央に寄せ、ボタンを横に並べる

@@ -14,7 +14,10 @@ struct RootView: View {
 
     var body: some View {
         ZStack {
+            #if !os(visionOS)
+            // visionOS はウインドウの形の板を画面ごとに描く（VisionPanel）
             HeatTintBackground()
+            #endif
             Group {
                 if model.isLocked {
                     LockView()
@@ -76,6 +79,8 @@ struct MainView: View {
         } else {
             PhoneHomeView()
         }
+        #elseif os(visionOS)
+        VisionMainView()
         #else
         PhoneHomeView()
         #endif
@@ -114,7 +119,11 @@ struct PrivacyCover: View {
 
     var body: some View {
         ZStack {
+            #if os(visionOS)
+            VisionPanelBackground()
+            #else
             HeatTintBackground()
+            #endif
             VStack(spacing: 14) {
                 Image(systemName: "lock.fill")
                     .font(.system(size: 40, weight: .semibold))

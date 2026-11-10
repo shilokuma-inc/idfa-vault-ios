@@ -75,7 +75,8 @@ struct AppDependencies {
             authenticator: StubAuthenticator(kind: .demo, outcome: scene == .lock ? .cancelled : .success),
             tracking: StubTrackingProvider(
                 status: scene == .denied ? .denied : .authorized,
-                identifier: UITesting.sampleIdentifier
+                identifier: UITesting.sampleIdentifier,
+                supportsAdvertisingIdentifier: SystemTrackingProvider().supportsAdvertisingIdentifier
             ),
             clipboard: NoopClipboard(),
             deviceInfo: StubDeviceInfo(),
@@ -104,7 +105,11 @@ struct AppDependencies {
         }
         return AppDependencies(
             authenticator: StubAuthenticator(kind: biometry, outcome: outcome),
-            tracking: StubTrackingProvider(status: status, identifier: UITesting.sampleIdentifier),
+            tracking: StubTrackingProvider(
+                status: status,
+                identifier: UITesting.sampleIdentifier,
+                supportsAdvertisingIdentifier: SystemTrackingProvider().supportsAdvertisingIdentifier
+            ),
             clipboard: SystemClipboard(),
             deviceInfo: StubDeviceInfo(),
             sync: sync,
@@ -265,7 +270,21 @@ struct NoopClipboard: ClipboardWriting {
 struct StubDeviceInfo: DeviceInfoProviding {
     var deviceID = "this-device"
     var platform: DevicePlatform = .current
-    var name = DeviceKind.current == .mac ? "MacBook Pro" : (DeviceKind.current == .iPad ? "iPad Pro" : "iPhone 16 Pro")
+    var name = Self.defaultName
+
+    /// 撮影と UI テストで出す、この端末の名前
+    static var defaultName: String {
+        switch DeviceKind.current {
+        case .iPhone:
+            "iPhone 16 Pro"
+        case .iPad:
+            "iPad Pro"
+        case .mac:
+            "MacBook Pro"
+        case .vision:
+            "Apple Vision Pro"
+        }
+    }
 
     func displayName() async -> String {
         name
