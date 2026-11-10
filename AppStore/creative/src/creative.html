@@ -54,15 +54,21 @@
     box-shadow: 0 0 0 4px #3a3d46, 0 60px 140px rgba(0, 0, 0, 0.6); }
   .phone img { display: block; width: 100%; border-radius: 8.4%/3.9%; }
 
-  .headline { position: absolute; left: 0; right: 0; text-align: center; font-weight: 800; letter-spacing: -0.01em; }
+  /* 日本語は文節で折り返す（「コピ / ー」のように語の途中で切らない） */
+  .headline, .sub, .copy .title { word-break: auto-phrase; line-break: strict; }
+  /* 折り返したときに、2 行目が 1 語だけにならないよう行の長さをそろえる */
+  .headline, .sub { text-wrap: balance; }
+  /* ヘッダーは端末によって左右が切れるので、文字は中央の 2640px に収める（長い言語は折り返す） */
+  .headline { position: absolute; left: 600px; right: 600px; text-align: center; font-weight: 800; letter-spacing: -0.01em; }
   .headline em, .copy .title em { font-style: normal; color: var(--highlight); }
-  .sub { position: absolute; left: 0; right: 0; text-align: center; color: var(--text-2); font-weight: 500; }
+  .sub { position: absolute; left: 600px; right: 600px; text-align: center; color: var(--text-2); font-weight: 500; line-height: 1.3; }
 
   .copy { position: absolute; }
   .copy .title { font-weight: 800; line-height: 1.18; letter-spacing: -0.01em; }
   .chips { display: flex; flex-direction: column; gap: 0.55em; }
   /* 角丸の代わりに、左右を尖らせた六角形（アプリの StatusBadge と同じ形） */
-  .chip { display: inline-flex; align-items: center; gap: 0.6em; align-self: flex-start;
+  /* チップは折り返さない（長い言語は文言を短くする） */
+  .chip { display: inline-flex; align-items: center; gap: 0.6em; align-self: flex-start; white-space: nowrap;
     padding: 0.45em 1.2em 0.5em 0.95em; font-weight: 700;
     clip-path: polygon(0.55em 0, calc(100% - 0.55em) 0, 100% 50%, calc(100% - 0.55em) 100%, 0.55em 100%, 0 50%);
     background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 38%, #0b0e24), color-mix(in srgb, var(--accent) 16%, #05060f)); }
@@ -89,7 +95,7 @@
   const copy = {
     ja: {
       header: { title: "あなたのIDFAを、<em>Face IDの奥に</em>。", sub: "広告識別子をすぐに確認・コピー。同期するのは自分のiCloudだけ。" },
-      search: { title: "IDFAを確認して、<br><em>ワンタップでコピー</em>。", chips: ["起動のたびにFace IDでロック", "コピー・共有・QRコード", "自分のiCloudだけで同期"] },
+      search: { title: "IDFAを確認して、<br><em>すぐにコピー</em>。", chips: ["毎回Face IDでロック", "コピー・共有・QRコード", "自分のiCloudだけで同期"] },
     },
     en: {
       header: { title: "Your IDFA, <em>behind Face ID</em>.", sub: "Check and copy your advertising identifier in seconds. Synced only through your own iCloud." },
