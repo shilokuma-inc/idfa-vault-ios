@@ -417,10 +417,14 @@ jobs:
           APP_STORE_CONNECT_PRIVATE_KEY_PATH: ${{ runner.temp }}/private_keys/AuthKey.p8
           APP_VERSION: ${{ inputs.app_version }}
           MISSING_LOCALES: ${{ inputs.missing_locales }}
+          # visionOS（3840x2160）は Apple 側の取り込みに 5 分以上かかることがある
+          SCREENSHOT_DELIVERY_TIMEOUT: 1200
         run: |
           set -euo pipefail
           python3 -m venv .venv
           .venv/bin/pip install --quiet --disable-pip-version-check pyjwt cryptography
+          # 1 つの表示サイズが失敗しても、残りの表示サイズは流す（最後にまとめて失敗にする）
+          failed=()
           for directory in AppStore/screenshots/*/; do
             display_type=$(basename "$directory")
             case "$display_type" in
@@ -432,13 +436,19 @@ jobs:
             if [ -n "$APP_VERSION" ]; then
               options+=(--app-version "$APP_VERSION")
             fi
-            .venv/bin/python -u Tools/upload_screenshots.py \
+            if ! .venv/bin/python -u Tools/upload_screenshots.py \
               --screenshots-dir "${directory%/}" \
               --display-type "$display_type" \
               --platform "$platform" \
               "${options[@]}" \
-              | tee -a "$RUNNER_TEMP/upload.log"
+              2>&1 | tee -a "$RUNNER_TEMP/upload.log"; then
+              failed+=("$display_type")
+            fi
           done
+          if [ "${#failed[@]}" -gt 0 ]; then
+            echo "::error::反映できなかった表示サイズ: ${failed[*]}"
+            exit 1
+          fi
 
       - name: Summary
         if: always()
