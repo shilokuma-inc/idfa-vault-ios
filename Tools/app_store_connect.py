@@ -164,24 +164,27 @@ class AppStoreConnect:
             raise SystemExit(f"bundleId が {bundle_id} のアプリが見つかりません")
         return apps[0]
 
-    def versions(self, app_id: str) -> list[dict]:
+    def versions(self, app_id: str, platform: str = "IOS") -> list[dict]:
+        """そのプラットフォーム（IOS / MAC_OS / VISION_OS）の App Store のバージョン。"""
         return self.get_all(
             f"/v1/apps/{app_id}/appStoreVersions",
-            {"filter[platform]": "IOS", "limit": 50},
+            {"filter[platform]": platform, "limit": 50},
         )
 
     @staticmethod
     def is_editable(version: dict) -> bool:
         return version["attributes"]["appStoreState"] in EDITABLE_STATES
 
-    def find_version(self, app_id: str, version_string: str | None, reference: bool = False) -> dict:
-        """書き換えられるバージョンを返す。
+    def find_version(
+        self, app_id: str, version_string: str | None, reference: bool = False, platform: str = "IOS"
+    ) -> dict:
+        """書き換えられるバージョンを返す（`platform` は IOS / MAC_OS / VISION_OS）。
 
         `reference` を True にすると（dry-run で使う）、編集できるバージョンが無いときに止めず、
         いちばん新しいバージョン（審査中・配信中など）を比べる相手として返す。
         返したバージョンが書き換えられるかは `is_editable` で見る。
         """
-        versions = self.versions(app_id)
+        versions = self.versions(app_id, platform)
         editable = [v for v in versions if self.is_editable(v)]
 
         if version_string:

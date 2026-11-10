@@ -40,6 +40,9 @@ SCREENSHOTS_FILE = ROOT / "AppStore" / "screenshots.json"
 #: 1 つの言語・表示サイズに載せられる枚数の上限（App Store Connect の制限）
 MAX_SCREENSHOTS = 10
 
+#: App Store Connect のプラットフォーム → 表示名。掲載情報（upload_metadata.py・upload_app_info.py）の --platform で使う
+PLATFORM_NAMES = {"IOS": "iOS", "MAC_OS": "macOS", "VISION_OS": "visionOS"}
+
 #: screenshots.json の表示サイズで runsOn / xcodeVersion を省いたときの既定
 DEFAULT_RUNS_ON = "macos-latest"
 DEFAULT_XCODE_VERSION = "26.6"

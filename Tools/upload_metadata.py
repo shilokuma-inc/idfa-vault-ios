@@ -38,7 +38,7 @@ import urllib.parse
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from app_store_config import ROOT, Language, bundle_id, languages, parse_list
+from app_store_config import PLATFORM_NAMES, ROOT, Language, bundle_id, languages, parse_list
 
 METADATA_DIR = ROOT / "AppStore" / "metadata"
 
@@ -195,6 +195,12 @@ def main() -> int:
     parser.add_argument("--languages", help="対象の言語（カンマ区切り）。省略すると全言語")
     parser.add_argument("--bundle-id", help="省略すると project.pbxproj から読む")
     parser.add_argument("--app-version", help="反映先のバージョン。省略すると編集できるバージョンを自動で選ぶ")
+    parser.add_argument(
+        "--platform",
+        choices=("IOS", "MAC_OS", "VISION_OS"),
+        default="IOS",
+        help="反映先のプラットフォームの版（既定は IOS）。アプリにそのプラットフォームが無ければ何もしない",
+    )
     parser.add_argument("--key-id", default=os.environ.get("APP_STORE_CONNECT_KEY_ID"))
     parser.add_argument("--issuer-id", default=os.environ.get("APP_STORE_CONNECT_ISSUER_ID"))
     parser.add_argument(
@@ -269,11 +275,15 @@ def main() -> int:
     )
 
     app = client.find_app(args.bundle_id or bundle_id())
+    # macOS・visionOS は、App Store Connect のアプリにそのプラットフォームを足していなければ飛ばす（足すのは Web だけ）
+    if args.platform != "IOS" and not client.versions(app["id"], args.platform):
+        print(f"{app['attributes']['name']} に {PLATFORM_NAMES[args.platform]} の版が無いので飛ばします")
+        return 0
     # dry-run は、編集できるバージョンが無くても審査中・配信中の値と比べる（JSON と App Store Connect のずれを見るため）
-    version = client.find_version(app["id"], args.app_version, reference=args.dry_run)
+    version = client.find_version(app["id"], args.app_version, reference=args.dry_run, platform=args.platform)
     version_string = version["attributes"]["versionString"]
     app_info = client.find_app_info(app["id"], reference=args.dry_run)
-    print(f"対象: {app['attributes']['name']} {version_string} "
+    print(f"対象: {app['attributes']['name']} {PLATFORM_NAMES[args.platform]} {version_string} "
           f"({version['attributes']['appStoreState']})")
     if args.dry_run:
         print("--dry-run: App Store Connect には何も書き込みません")

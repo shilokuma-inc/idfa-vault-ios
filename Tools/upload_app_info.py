@@ -50,7 +50,7 @@ from pathlib import Path
 from typing import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from app_store_config import ROOT, bundle_id
+from app_store_config import PLATFORM_NAMES, ROOT, bundle_id
 from upload_metadata import describe_changes
 
 CONFIG_PATH = ROOT / "AppStore" / "app_info.json"
@@ -663,6 +663,12 @@ def main() -> int:
     parser.add_argument("--config", type=Path, default=CONFIG_PATH, help="読む JSON（既定は AppStore/app_info.json）")
     parser.add_argument("--bundle-id", help="省略すると project.pbxproj から読む")
     parser.add_argument("--app-version", help="App Review に関する情報の反映先のバージョン。省略すると編集できるバージョンを自動で選ぶ")
+    parser.add_argument(
+        "--platform",
+        choices=("IOS", "MAC_OS", "VISION_OS"),
+        default="IOS",
+        help="反映先のプラットフォームの版（既定は IOS）。アプリにそのプラットフォームが無ければ何もしない",
+    )
     parser.add_argument("--key-id", default=os.environ.get("APP_STORE_CONNECT_KEY_ID"))
     parser.add_argument("--issuer-id", default=os.environ.get("APP_STORE_CONNECT_ISSUER_ID"))
     parser.add_argument(
@@ -717,10 +723,14 @@ def main() -> int:
     )
 
     app = client.find_app(args.bundle_id or bundle_id())
+    # macOS・visionOS は、App Store Connect のアプリにそのプラットフォームを足していなければ飛ばす（足すのは Web だけ）
+    if args.platform != "IOS" and not client.versions(app["id"], args.platform):
+        print(f"{app['attributes']['name']} に {PLATFORM_NAMES[args.platform]} の版が無いので飛ばします")
+        return 0
     # dry-run は、編集できるバージョンが無くても審査中・配信中の値と比べる（JSON と App Store Connect のずれを見るため）
-    version = client.find_version(app["id"], args.app_version, reference=args.dry_run)
+    version = client.find_version(app["id"], args.app_version, reference=args.dry_run, platform=args.platform)
     app_info = client.find_app_info(app["id"], reference=args.dry_run)
-    print(f"対象: {app['attributes']['name']} {version['attributes']['versionString']} "
+    print(f"対象: {app['attributes']['name']} {PLATFORM_NAMES[args.platform]} {version['attributes']['versionString']} "
           f"({version['attributes']['appStoreState']})")
     if args.dry_run:
         print("--dry-run: App Store Connect には何も書き込みません")
@@ -733,18 +743,23 @@ def main() -> int:
     # 書き込む前にすべての書き込み先の現在値を読み、カテゴリの ID や無料の価格ポイントがあるかを確かめる。
     # 途中で止まって一部だけ書き換わった状態にしないため
     reminders: list[str] = []
-    steps: list[Step] = [
-        plan_content_rights(client, app, config["contentRights"]),
-        plan_categories(client, app_info, config["categories"]),
-        plan_age_rating(client, app_info, config["ageRating"]),
-        plan_review(client, version, review, reminders),
-    ]
+    # コンテンツの権利・カテゴリ・年齢制限・価格・配信状況はアプリ（App 情報）でプラットフォーム共通なので、iOS の回だけ書く。
+    # 審査の情報とリリースの方法は版ごとにあるので、プラットフォームごとに書く
+    shared = args.platform == "IOS"
+    steps: list[Step] = []
+    if shared:
+        steps.extend([
+            plan_content_rights(client, app, config["contentRights"]),
+            plan_categories(client, app_info, config["categories"]),
+            plan_age_rating(client, app_info, config["ageRating"]),
+        ])
+    steps.append(plan_review(client, version, review, reminders))
     if config["release"]:
         steps.append(plan_release_type(client, version, config["release"]["releaseType"]))
         steps.append(plan_phased_release(client, version, config["release"]["phasedRelease"]))
-    if config["pricing"]:
+    if shared and config["pricing"]:
         steps.append(plan_pricing(client, app, config["pricing"]))
-    if config["availability"]:
+    if shared and config["availability"]:
         steps.append(plan_availability(client, app, config["availability"], reminders))
 
     for label, lines, write in steps:
@@ -760,12 +775,16 @@ def main() -> int:
     print("完了")
     # ワークフローで反映できないもの（README の「審査に出す前に App Store Connect で手入力するもの」）。
     # アプリの作成は、済んでいなければ find_app で先に止まるので載せない
-    reminders.extend([
-        "App のプライバシー（収集するデータの申告。API が無いので、いつも App Store Connect で入力する）",
-        "App Review に関する情報の添付ファイル（実機の画面収録。最初の審査では求められることが多い）",
-        "ビルドの選択と審査への提出",
-        "デジタルサービス法（EU）の取引業者の情報（アカウントで一度だけ。登録済みなら不要）",
-    ])
+    # アプリで共通のものは iOS の回だけ出す（macOS・visionOS の回で同じ一覧を繰り返さない）
+    if shared:
+        reminders.extend([
+            "App のプライバシー（収集するデータの申告。API が無いので、いつも App Store Connect で入力する）",
+            "App Review に関する情報の添付ファイル（実機の画面収録。最初の審査では求められることが多い）",
+            "ビルドの選択と審査への提出",
+            "デジタルサービス法（EU）の取引業者の情報（アカウントで一度だけ。登録済みなら不要）",
+        ])
+    else:
+        reminders.append(f"{PLATFORM_NAMES[args.platform]} の版のビルドの選択と審査への提出")
     print("審査に出す前に App Store Connect で入力が要るもの:")
     for reminder in reminders:
         print(f"  - {reminder}")
