@@ -2,6 +2,7 @@
 
 自分の端末の IDFA（広告識別子）を、生体認証のうしろで確認・コピーするアプリです。
 同じ Apple ID の他の端末の IDFA も、iCloud の非公開データベース（CloudKit）で同期してまとめて確認できます。
+自分の IDFA を取れるのは iPhone・iPad だけです。macOS と visionOS はアプリに IDFA を渡さないので、Mac と Apple Vision Pro では、同じ iCloud の iPhone・iPad の IDFA を確認・コピーします。
 広告・外部 SDK・サーバーはありません。
 
 - 対応: iPhone・iPad・Mac・Apple Vision Pro（SwiftUI のマルチプラットフォームの 1 ターゲット）

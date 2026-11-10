@@ -28,5 +28,5 @@
 
 ## プラットフォーム
 
-- visionOS の SDK には AdSupport（`ASIdentifierManager`）が無く、visionOS のネイティブのアプリは自分の IDFA を取得できない。実行環境には AdSupport.framework があるが、iPad の互換アプリ（Designed for iPad）用。AppTrackingTransparency は SDK にある（2026-11-10）
+- 自分の IDFA を取れるのは iPhone・iPad だけ。visionOS の SDK には AdSupport（`ASIdentifierManager`）が無い（実行環境の AdSupport.framework は iPad の互換アプリ用）。macOS は Apple の資料のとおり `ATTrackingManager.trackingAuthorizationStatus` が常に `notDetermined` で、`requestTrackingAuthorization` は前面でもダイアログを出さずに一瞬で `notDetermined` を返し、IDFA は 0。Mac の Designed for iPad（`isiOSAppOnMac`）でも同じで、Vision Pro で iPad アプリとして動かしても取れなかった（2026-11-10）
 - `sensoryFeedback(_:trigger:)` は visionOS では 26.0 から（iOS 17・macOS 14 とずれる）（2026-11-10）
