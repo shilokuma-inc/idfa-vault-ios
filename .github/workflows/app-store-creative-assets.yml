@@ -38,8 +38,9 @@ jobs:
     # App Store Connect にアプリが無いリポジトリ（テンプレート自身など）は ENABLE_DELIVERY=false でスキップする
     if: vars.ENABLE_DELIVERY != 'false'
     runs-on: ubuntu-latest
-    # 24 枚（12 言語 × 2）の処理を 1 枚ずつ待つので、処理が遅い日でも収まるよう長めにする
-    timeout-minutes: 180
+    # 24 枚（12 言語 × 2）の処理を 1 枚ずつ待つので、GitHub のランナーの上限（360 分）にする。
+    # それでも収まらないほど処理が遅い日は、入力 languages で言語を分けて流す
+    timeout-minutes: 360
 
     steps:
       - name: Checkout
