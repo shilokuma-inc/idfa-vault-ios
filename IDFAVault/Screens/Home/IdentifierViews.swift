@@ -155,7 +155,7 @@ struct CopyButton: View {
         Button {
             model.copy(identifier)
         } label: {
-            Label("Copy", systemImage: "square.on.square")
+            FittingButtonLabel(title: "Copy", systemImage: "square.on.square")
                 .font(.system(size: 16, weight: .bold))
         }
         .buttonStyle(.metal(.primary, chamfer: 10, minHeight: minHeight, fillsWidth: fillsWidth))
@@ -171,10 +171,31 @@ struct ShareIdentifierButton: View {
 
     var body: some View {
         ShareLink(item: identifier.value) {
-            Label("Share", systemImage: "square.and.arrow.up")
+            FittingButtonLabel(title: "Share", systemImage: "square.and.arrow.up")
                 .font(.system(size: 16, weight: .bold))
         }
         .buttonStyle(.metal(.secondary, chamfer: 10, minHeight: minHeight, fillsWidth: fillsWidth))
+    }
+}
+
+/// ボタンの文字。狭い iPhone で長い言語（ロシア語など）のときは、単語の途中で折り返したり切れたりしないよう、
+/// アイコンを外して文字だけにする（それでも入らなければ少し縮める）
+struct FittingButtonLabel: View {
+    var title: LocalizedStringResource
+    var systemImage: String
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            Label {
+                Text(title).lineLimit(1)
+            } icon: {
+                Image(systemName: systemImage)
+            }
+            .fixedSize()
+            Text(title)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
     }
 }
 
