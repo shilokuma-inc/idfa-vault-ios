@@ -5,8 +5,8 @@
   creative.html?type=header&lang=ja&screens=01_home のように指定する
   （同じフォルダの screens/<言語>/ に 6.9 inch のスクリーンショット、icon.png にアプリアイコンが要る）。
 
-  アプリを作ったら、:root の色と copy の文言（TODO:）をアプリに合わせて書き換える。
-  TODO: が残っているあいだは Tools/upload_creative_assets.py が反映を止める。
+  色はアプリのヒートティント（IDFAVault/Design/HeatTint.swift）に合わせ、文言は 12 言語で書いた。
+  アプリと同じく角丸を使わないので、機能のチップは左右を尖らせた六角形にしている（端末の枠とアプリアイコンは除く）。
 
   方針（https://developer.apple.com/app-store/asset-best-practices/）
   - ヘッダー（21:9）: 初めて来た人向けに、アプリのいちばんの価値を 1 つだけ伝える。
@@ -18,24 +18,28 @@
 <head>
 <meta charset="utf-8">
 <style>
-  /* TODO: アプリのアイコンやテーマに合わせた色にする */
+  /* アプリのヒートティントの配色（HeatTint.base・HeatTintBackground の光・lavender） */
   :root {
-    --background: #0b1026;
-    --background-2: #1b2470;
-    --highlight: #ffd98a;
-    --accent: #5b6cff;
-    --text: #ffffff;
-    --text-2: rgba(255, 255, 255, 0.76);
+    --background: #03030a;
+    --background-2: #1b1f4a;
+    --highlight: #c9c2ff;
+    --accent: #5a56d8;
+    --text: #e6ebfa;
+    --text-2: rgba(220, 227, 250, 0.76);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; height: 100%; overflow: hidden; }
   body {
     background: var(--background);
     color: var(--text);
-    font-family: "Hiragino Sans", "SF Pro Display", system-ui, sans-serif;
+    font-family: "SF Pro Display", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-  body[data-lang="en"] { font-family: "SF Pro Display", system-ui, "Hiragino Sans", sans-serif; }
+  /* 漢字・かな・ハングルは、それぞれの言語の書体にする */
+  body[data-lang="ja"] { font-family: "Hiragino Sans", "SF Pro Display", sans-serif; }
+  body[data-lang="zh-Hans"] { font-family: "SF Pro Display", "PingFang SC", sans-serif; }
+  body[data-lang="zh-Hant"] { font-family: "SF Pro Display", "PingFang TC", sans-serif; }
+  body[data-lang="ko"] { font-family: "SF Pro Display", "Apple SD Gothic Neo", sans-serif; }
 
   .canvas { position: relative; width: 100vw; height: 100vh; overflow: hidden;
     background:
@@ -57,12 +61,15 @@
   .copy { position: absolute; }
   .copy .title { font-weight: 800; line-height: 1.18; letter-spacing: -0.01em; }
   .chips { display: flex; flex-direction: column; gap: 0.55em; }
+  /* 角丸の代わりに、左右を尖らせた六角形（アプリの StatusBadge と同じ形） */
   .chip { display: inline-flex; align-items: center; gap: 0.6em; align-self: flex-start;
-    padding: 0.45em 0.95em 0.5em 0.7em; border-radius: 999px; font-weight: 700;
-    background: color-mix(in srgb, var(--accent) 22%, transparent);
-    box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--accent) 60%, white 10%); }
-  .chip i { font-style: normal; display: grid; place-items: center; width: 1.5em; height: 1.5em; border-radius: 50%;
-    background: var(--accent); font-size: 0.8em; }
+    padding: 0.45em 1.2em 0.5em 0.95em; font-weight: 700;
+    clip-path: polygon(0.55em 0, calc(100% - 0.55em) 0, 100% 50%, calc(100% - 0.55em) 100%, 0.55em 100%, 0 50%);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 38%, #0b0e24), color-mix(in srgb, var(--accent) 16%, #05060f)); }
+  /* 番号の台は面取りの八角形 */
+  .chip i { font-style: normal; display: grid; place-items: center; width: 1.5em; height: 1.5em;
+    clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%);
+    background: var(--highlight); color: #07081a; font-size: 0.8em; }
   .brand { position: absolute; display: flex; align-items: center; gap: 0.6em; font-weight: 800; color: var(--highlight); }
   .brand img { height: 1.9em; border-radius: 22%; }
 </style>
@@ -78,15 +85,55 @@
   const screens = (params.get("screens") || "").split(",").filter(Boolean);
   document.body.dataset.lang = lang;
 
-  // TODO: アプリに合わせて書き換える。<em> で囲んだところが強調色になる
+  // 言語ごとの文言（languages.json の 12 言語）。<em> で囲んだところが強調色になる
   const copy = {
     ja: {
-      header: { title: "TODO: アプリの<em>いちばんの価値</em>をひとことで。", sub: "TODO: それを支える一文。" },
-      search: { title: "TODO: 何ができるかを<br><em>一目で</em>。", chips: ["TODO: 主な機能 1", "TODO: 主な機能 2", "TODO: 主な機能 3"] },
+      header: { title: "あなたのIDFAを、<em>Face IDの奥に</em>。", sub: "広告識別子をすぐに確認・コピー。同期するのは自分のiCloudだけ。" },
+      search: { title: "IDFAを確認して、<br><em>ワンタップでコピー</em>。", chips: ["起動のたびにFace IDでロック", "コピー・共有・QRコード", "自分のiCloudだけで同期"] },
     },
     en: {
-      header: { title: "TODO: Your app's <em>best value</em> in one line.", sub: "TODO: One sentence that backs it up." },
-      search: { title: "TODO: What it does,<br><em>at a glance</em>.", chips: ["TODO: Key feature 1", "TODO: Key feature 2", "TODO: Key feature 3"] },
+      header: { title: "Your IDFA, <em>behind Face ID</em>.", sub: "Check and copy your advertising identifier in seconds. Synced only through your own iCloud." },
+      search: { title: "See your IDFA,<br><em>copy it in a tap</em>.", chips: ["Locked with Face ID every time", "Copy, share or show a QR code", "Synced only via your iCloud"] },
+    },
+    "zh-Hans": {
+      header: { title: "你的 IDFA，<em>锁在面容 ID 之后</em>。", sub: "几秒内查看并拷贝广告标识符，仅通过你自己的 iCloud 同步。" },
+      search: { title: "查看 IDFA，<br><em>一键拷贝</em>。", chips: ["每次打开都用面容 ID 解锁", "拷贝、共享或显示二维码", "仅通过你的 iCloud 同步"] },
+    },
+    "zh-Hant": {
+      header: { title: "你的 IDFA，<em>鎖在 Face ID 之後</em>。", sub: "幾秒內查看並拷貝廣告識別碼，只透過你自己的 iCloud 同步。" },
+      search: { title: "查看 IDFA，<br><em>一點就拷貝</em>。", chips: ["每次打開都以 Face ID 解鎖", "拷貝、分享或顯示 QR 碼", "只透過你的 iCloud 同步"] },
+    },
+    ko: {
+      header: { title: "내 IDFA를 <em>Face ID 뒤에</em>.", sub: "광고 식별자를 몇 초 만에 확인하고 복사하십시오. 동기화는 내 iCloud로만 이루어집니다." },
+      search: { title: "IDFA를 확인하고<br><em>탭 한 번으로 복사</em>.", chips: ["열 때마다 Face ID로 잠금", "복사, 공유, QR 코드", "내 iCloud로만 동기화"] },
+    },
+    es: {
+      header: { title: "Tu IDFA, <em>tras Face ID</em>.", sub: "Consulta y copia tu identificador de publicidad en segundos. Se sincroniza solo con tu iCloud." },
+      search: { title: "Ve tu IDFA y<br><em>cópialo con un toque</em>.", chips: ["Bloqueo con Face ID siempre", "Copiar, compartir o código QR", "Sincronizado solo con tu iCloud"] },
+    },
+    fr: {
+      header: { title: "Votre IDFA, <em>derrière Face ID</em>.", sub: "Consultez et copiez votre identifiant publicitaire en quelques secondes. Synchronisé uniquement via votre iCloud." },
+      search: { title: "Votre IDFA,<br><em>copié d’un toucher</em>.", chips: ["Verrouillé par Face ID", "Copier, partager ou code QR", "Synchronisé via votre iCloud"] },
+    },
+    de: {
+      header: { title: "Deine IDFA, <em>hinter Face ID</em>.", sub: "Werbe-ID in Sekunden sehen und kopieren. Nur über deine eigene iCloud synchronisiert." },
+      search: { title: "IDFA sehen,<br><em>mit einem Tipp kopieren</em>.", chips: ["Bei jedem Öffnen Face ID", "Kopieren, teilen oder QR-Code", "Nur über deine iCloud"] },
+    },
+    it: {
+      header: { title: "Il tuo IDFA, <em>dietro Face ID</em>.", sub: "Controlla e copia l’identificatore pubblicitario in pochi secondi. Sincronizzato solo tramite il tuo iCloud." },
+      search: { title: "Vedi il tuo IDFA,<br><em>copialo con un tocco</em>.", chips: ["Bloccato con Face ID", "Copia, condividi o codice QR", "Sincronizzato con il tuo iCloud"] },
+    },
+    "pt-BR": {
+      header: { title: "Seu IDFA, <em>protegido pelo Face ID</em>.", sub: "Veja e copie seu identificador de publicidade em segundos. Sincronizado só pelo seu iCloud." },
+      search: { title: "Veja seu IDFA e<br><em>copie com um toque</em>.", chips: ["Bloqueio com Face ID sempre", "Copiar, compartilhar ou QR", "Sincronizado só pelo seu iCloud"] },
+    },
+    ru: {
+      header: { title: "Ваш IDFA <em>под защитой Face ID</em>.", sub: "Смотрите и копируйте рекламный идентификатор за секунды. Синхронизация только через ваш iCloud." },
+      search: { title: "Смотрите IDFA и<br><em>копируйте касанием</em>.", chips: ["Face ID при каждом запуске", "Копировать, поделиться, QR", "Только через ваш iCloud"] },
+    },
+    id: {
+      header: { title: "IDFA Anda, <em>di balik Face ID</em>.", sub: "Lihat dan salin pengenal iklan dalam hitungan detik. Hanya diselaraskan melalui iCloud Anda." },
+      search: { title: "Lihat IDFA,<br><em>salin sekali ketuk</em>.", chips: ["Dikunci Face ID setiap kali", "Salin, bagikan, atau kode QR", "Hanya lewat iCloud Anda"] },
     },
   }[lang];
   // 文言の無い言語は、背景だけの画像を書き出さないようここで止める（render_creative_assets.sh でも先に確かめる）
@@ -119,7 +166,8 @@
     // 3:2（3840x2560）。左に何のアプリかと主な機能、右に実際の画面
     glow(2600, W - 1000, 1400);
     add(`<div class="brand" style="left:250px;top:200px;font-size:86px"><img src="icon.png">${appName}</div>`);
-    add(`<div class="copy" style="left:250px;top:470px;width:1700px;font-size:150px">` +
+    // 右の端末（傾けた左端が x=1650px あたり）にかからない幅にする。長い言語（ロシア語など）は折り返す
+    add(`<div class="copy" style="left:250px;top:470px;width:1400px;font-size:150px">` +
         `<div class="title">${copy.search.title}</div>` +
         `<div class="chips" style="font-size:78px;margin-top:110px">` +
         copy.search.chips.map((c, i) => `<div class="chip"><i>${i + 1}</i>${c}</div>`).join("") +
