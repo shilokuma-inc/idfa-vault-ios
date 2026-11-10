@@ -46,21 +46,16 @@ struct OwnIdentifierCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 8) {
-                Text(verbatim: "IDFA · \(DeviceKind.current.engravedName)")
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .tracking(1.9)
-                    .foregroundStyle(HeatTint.text.opacity(0.78))
-                    .lineLimit(1)
-                Spacer(minLength: 8)
-                if model.supportsOwnIdentifier {
-                    StatusBadge(
-                        title: model.trackingStatus.badgeTitle,
-                        color: model.trackingStatus.badgeColor,
-                        glows: model.trackingStatus == .authorized
-                    )
-                } else {
-                    StatusBadge(title: "Not Available", color: HeatTint.sectionHeader)
+            // 狭い iPhone（SE など）や長い言語では 1 行に入らないので、バッジを切らずに上の行に回す
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    heading
+                    Spacer(minLength: 8)
+                    badge
+                }
+                VStack(alignment: .leading, spacing: 10) {
+                    badge
+                    heading
                 }
             }
             IdentifierText(
@@ -77,6 +72,29 @@ struct OwnIdentifierCard: View {
         .padding(.bottom, 18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .ingotBackground()
+    }
+
+    private var heading: some View {
+        Text(verbatim: "IDFA · \(DeviceKind.current.engravedName)")
+            .font(.system(size: 12, weight: .bold, design: .monospaced))
+            .tracking(1.9)
+            .foregroundStyle(HeatTint.text.opacity(0.78))
+            .lineLimit(1)
+            .fixedSize()
+    }
+
+    @ViewBuilder private var badge: some View {
+        if model.supportsOwnIdentifier {
+            StatusBadge(
+                title: model.trackingStatus.badgeTitle,
+                color: model.trackingStatus.badgeColor,
+                glows: model.trackingStatus == .authorized
+            )
+            .fixedSize()
+        } else {
+            StatusBadge(title: "Not Available", color: HeatTint.sectionHeader)
+                .fixedSize()
+        }
     }
 
     @ViewBuilder private var detail: some View {
@@ -137,7 +155,7 @@ struct CopyButton: View {
         Button {
             model.copy(identifier)
         } label: {
-            Label("Copy", systemImage: "square.on.square")
+            FittingButtonLabel(title: "Copy", systemImage: "square.on.square")
                 .font(.system(size: 16, weight: .bold))
         }
         .buttonStyle(.metal(.primary, chamfer: 10, minHeight: minHeight, fillsWidth: fillsWidth))
@@ -153,10 +171,31 @@ struct ShareIdentifierButton: View {
 
     var body: some View {
         ShareLink(item: identifier.value) {
-            Label("Share", systemImage: "square.and.arrow.up")
+            FittingButtonLabel(title: "Share", systemImage: "square.and.arrow.up")
                 .font(.system(size: 16, weight: .bold))
         }
         .buttonStyle(.metal(.secondary, chamfer: 10, minHeight: minHeight, fillsWidth: fillsWidth))
+    }
+}
+
+/// ボタンの文字。狭い iPhone で長い言語（ロシア語など）のときは、単語の途中で折り返したり切れたりしないよう、
+/// アイコンを外して文字だけにする（それでも入らなければ少し縮める）
+struct FittingButtonLabel: View {
+    var title: LocalizedStringResource
+    var systemImage: String
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            Label {
+                Text(title).lineLimit(1)
+            } icon: {
+                Image(systemName: systemImage)
+            }
+            .fixedSize()
+            Text(title)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
     }
 }
 
