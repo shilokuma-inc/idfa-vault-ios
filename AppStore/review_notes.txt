@@ -1,7 +1,9 @@
 IDFA Vault - Notes for App Review
 
 1. SCREEN RECORDING
-A screen recording from a physical iPhone running the latest iOS is attached to the App Review Information. It starts by launching the app and shows the typical flow: the lock screen and Face ID, the App Tracking Transparency prompt, the home screen with this device's IDFA, copying and sharing it, the list of the user's other devices synced through iCloud, settings, and locking the app again.
+A screen recording from a physical iPhone running the latest iOS is attached. It starts by launching the app from the Home Screen and shows unlocking with Face ID, this device's IDFA, copying and sharing it, the user's other devices synced through iCloud, settings, and locking the app again.
+Screen recording protection: to protect the IDFA, the app covers its screen while the screen is recorded or mirrored ("Hide During Screen Recording or Mirroring", on by default). For this video it was turned off in the app's Settings (the sliders button at the top right). Please turn it off the same way if you record the screen while testing.
+The App Tracking Transparency prompt appears once, right after the first unlock after installing. It is not in the video because tracking had already been allowed on this device.
 The app has no account registration, login, user-generated content, paid content, or In-App Purchases.
 
 2. PURPOSE AND TARGET AUDIENCE
