@@ -210,6 +210,10 @@ App Store のプロダクトページに載せるものは、`AppStore/` の JSO
 - iPhone Duo は Xcode 27.1 と iOS 27.1 のランタイムが要るので、`xcode-27` のランナーで撮ります（`screenshots.json` の `runsOn` / `xcodeVersion`）
 - Simulator のランタイムは、機種ごとに「その機種に対応したもののうち、ビルドする SDK 以下で一番新しいもの」を選びます（iOS 27.1 のランタイムは iPhone Duo にしか対応しないので、Xcode 27.1 でもほかの機種は iOS 27.0 などで撮ります）
 - 手元で撮るなら `Tools/capture_screenshots.sh APP_IPHONE_67 ja`（出力は `build/screenshots/`）
+- Mac（`APP_DESKTOP`、2880x1800）と visionOS（`APP_APPLE_VISION_PRO`、3840x2160）は、このワークフローでは撮れません。手元で撮影モードで撮った英語の画像を `AppStore/screenshots/<表示サイズ>/en/` に置きます。ほかの言語では、プライマリ言語（英語）の画像が使われます
+  - Mac: Release でビルドしたアプリを `-screenshot-demo -screenshot-scene <名前> -AppleLanguages "(en)"` で起動し、ウインドウを `screencapture -o -l <ウインドウ番号>` で撮ります。撮れる大きさは 2360x1480 なので、アプリの背景色の上に中央寄せで置き、2880x1800 にします
+  - visionOS: Simulator で同じ起動引数を付けて開き、`xcrun simctl io <UDID> screenshot` で撮ります（3840x2160）。ウインドウが小さく写るので、中央を 1.5 倍に寄せます
+  - 反映は `release/**` で撮るときに一緒に行います。撮らずに置いた画像だけを反映するときは、入力 `committed_only` をオンにします（どのブランチでも動きます）
 
 **名前・説明文・最新情報**
 
