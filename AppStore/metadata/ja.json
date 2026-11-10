@@ -11,7 +11,7 @@
   "name": "IDFA Vault",
   "subtitle": "広告IDを生体認証で安全に確認",
   "promotionalText": "広告識別子（IDFA）を、Face ID・Touch ID・Optic IDのロックの奥で確認して、すぐにコピー。同期するのは自分のiCloudだけです。",
-  "description": "IDFA Vaultは、この端末の広告識別子（IDFA）を生体認証のロックの奥で表示し、必要なときにすぐコピーできるアプリです。広告SDKにテスト端末を登録するとき、通信事業者などの手続きでIDFAを求められたときに使えます。\n\n■ 毎回ロック\n• 起動時とアプリに戻ったときに、Face ID・Touch ID・Optic ID（またはパスコード）を必ず求めます\n• アプリスイッチャーにIDFAが映りません\n• 画面収録・ミラーリング中は隠すこともできます\n\n■ コピー・共有・QRコード\n• IDFAを大文字・ハイフン付きでコピー。60秒後にクリップボードから消えます\n• 共有のほか、iPad・Mac・Apple Vision ProではQRコードでも表示できます\n• Macでは⌘Cやメニューバーからもコピーできます\n\n■ 自分の端末をまとめて確認\n• 同じApple Accountの他の端末のIDFAも、iCloudの非公開データベースで同期して一覧で確認できます\n• 他の端末のIDFAは、タップするまで伏せ字で表示します\n• 同期データはいつでもすべて削除できます\n\n■ プライバシーを第一に\n• 広告・解析・外部SDK・サーバーは一切ありません\n• IDFAはあなたのiCloudにだけ保存され、開発者も見ることはできません\n• トラッキングの許可は、IDFAを画面に表示するためだけに使います。広告やトラッキングには使いません\n\niPhone・iPad・Mac・Apple Vision Proに対応。visionOSはアプリにIDFAを提供しないため、Apple Vision Proでは他の端末のIDFAを表示します。",
+  "description": "IDFA Vaultは、この端末の広告識別子（IDFA）を生体認証のロックの奥で表示し、必要なときにすぐコピーできるアプリです。広告SDKにテスト端末を登録するとき、通信事業者などの手続きでIDFAを求められたときに使えます。\n\n■ 毎回ロック\n• 起動時とアプリに戻ったときに、Face ID・Touch ID・Optic ID（またはパスコード）を必ず求めます\n• アプリスイッチャーにIDFAが映りません\n• 画面収録・ミラーリング中は隠すこともできます\n\n■ コピー・共有・QRコード\n• IDFAを大文字・ハイフン付きでコピー。60秒後にクリップボードから消えます\n• 共有のほか、iPad・Mac・Apple Vision ProではQRコードでも表示できます\n• Macでは⌘Cやメニューバーからもコピーできます\n\n■ 自分の端末をまとめて確認\n• 同じApple Accountの他の端末のIDFAも、iCloudの非公開データベースで同期して一覧で確認できます\n• 他の端末のIDFAは、タップするまで伏せ字で表示します\n• 同期データはいつでもすべて削除できます\n\n■ プライバシーを第一に\n• 広告・解析・外部SDK・サーバーは一切ありません\n• IDFAはあなたのiCloudにだけ保存され、開発者も見ることはできません\n• トラッキングの許可は、IDFAを画面に表示するためだけに使います。広告やトラッキングには使いません\n\niPhone・iPad・Mac・Apple Vision Proに対応。macOSとvisionOSはアプリにIDFAを提供しないため、MacとApple Vision ProではiPhone・iPadのIDFAを表示します。",
   "keywords": [
     "広告識別子",
     "広告ID",
