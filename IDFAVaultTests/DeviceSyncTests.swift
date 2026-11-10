@@ -130,6 +130,51 @@ struct DeviceSyncTests {
         #expect(model.devices.otherDevices.isEmpty)
     }
 
+    /// Mac・visionOS は IDFA を取れないので、前の版が書いたレコードが残っていても一覧に出さない
+    @Test
+    func hidesDevicesThatCannotProvideAnIdentifier() async {
+        let mac = DeviceRecord(
+            id: "old-mac",
+            name: "MacBook Pro",
+            platform: .macOS,
+            identifier: nil,
+            trackingStatus: .notDetermined,
+            updatedAt: Self.now
+        )
+        let vision = DeviceRecord(
+            id: "old-vision",
+            name: "Apple Vision Pro",
+            platform: .visionOS,
+            identifier: nil,
+            trackingStatus: .notDetermined,
+            updatedAt: Self.now
+        )
+        let sync = StubDeviceSync(records: StubDeviceSync.demoDevices(now: Self.now) + [mac, vision])
+        let model = makeModel(sync: sync)
+
+        await model.unlock()
+        await waitUntil { model.devices.status == .synced }
+
+        #expect(model.devices.otherDevices.allSatisfy { $0.platform == .iOS || $0.platform == .iPadOS })
+        #expect(model.devices.otherDevices.count == 4)
+    }
+
+    /// 自分の IDFA を取れない端末（Mac・visionOS）は、許可を求めず、自分のレコードも書かずに一覧だけ読む
+    @Test
+    func listsOnlyWhereTheIdentifierIsUnavailable() async {
+        let sync = StubDeviceSync(records: StubDeviceSync.demoDevices(now: Self.now))
+        let tracking = StubTrackingProvider(status: .notDetermined, supportsAdvertisingIdentifier: false)
+        let model = makeModel(sync: sync, tracking: tracking)
+
+        await model.unlock()
+        await waitUntil { model.devices.status == .synced }
+
+        #expect(tracking.requestCount == 0)
+        #expect(sync.records["this-device"] == nil)
+        #expect(model.ownIdentifier == nil)
+        #expect(model.devices.otherDevices.count == 4)
+    }
+
     /// 通信に失敗しても、前に読めた一覧は残す
     @Test
     func keepsTheLastListWhenARefreshFails() async {
