@@ -222,3 +222,41 @@ struct SettingsDivider: View {
             .padding(.horizontal, 16)
     }
 }
+
+/// iPad の設定（シート）。iPhone の設定画面と同じ項目を、閉じるボタン付きで出す
+struct SettingsSheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("Settings")
+                        .font(.system(size: 34, weight: .heavy))
+                        .tracking(1.36)
+                        .headingMetal()
+                        .accessibilityAddTraits(.isHeader)
+                    Spacer()
+                    Button {
+                        dismiss()
+                    } label: {
+                        ToolButtonLabel(systemImage: "xmark")
+                    }
+                    .buttonStyle(.plain)
+                    .toolBackground()
+                    .accessibilityLabel(Text("Close"))
+                }
+                .padding(.horizontal, 4)
+                .padding(.bottom, 8)
+                SettingsForm()
+            }
+            .padding(24)
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .background(HeatTintBackground())
+        .presentationBackground {
+            HeatTintBackground()
+        }
+        .preferredColorScheme(.dark)
+    }
+}

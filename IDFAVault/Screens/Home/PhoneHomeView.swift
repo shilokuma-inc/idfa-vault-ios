@@ -70,6 +70,7 @@ struct PhoneHomeView: View {
                 .accessibilityIdentifier("settings")
             }
             .buttonStyle(.plain)
+            .fixedSize()
             .toolBackground()
         }
         .padding(.horizontal, 4)
@@ -81,6 +82,17 @@ struct TrackingDeniedSection: View {
     @Environment(\.openURL) private var openURL
 
     var body: some View {
+        #if os(macOS)
+        // macOS のシステム設定には、トラッキングの許可の項目が無い
+        Text("You can still see the IDFA of your other devices.")
+            .font(.caption)
+            .foregroundStyle(HeatTint.tertiaryText)
+        #else
+        steps
+        #endif
+    }
+
+    private var steps: some View {
         VStack(alignment: .leading, spacing: 16) {
             SectionHeader(title: "HOW TO ENABLE")
                 .padding(.horizontal, 4)

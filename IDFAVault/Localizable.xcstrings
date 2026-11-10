@@ -51,6 +51,26 @@
         }
       }
     },
+    "Allowed" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "許可済み"
+          }
+        }
+      }
+    },
+    "Authentication" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "認証"
+          }
+        }
+      }
+    },
     "Auto-Lock" : {
       "localizations" : {
         "ja" : {
@@ -111,6 +131,16 @@
         }
       }
     },
+    "Close" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閉じる"
+          }
+        }
+      }
+    },
     "Copied" : {
       "localizations" : {
         "ja" : {
@@ -137,6 +167,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "コピー"
+          }
+        }
+      }
+    },
+    "Copy IDFA" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFAをコピー"
           }
         }
       }
@@ -211,6 +251,16 @@
         }
       }
     },
+    "Done" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完了"
+          }
+        }
+      }
+    },
     "Each device has its own IDFA, and it changes if you reset it. Synced data is updated automatically the next time each device opens the app." : {
       "localizations" : {
         "ja" : {
@@ -271,6 +321,16 @@
         }
       }
     },
+    "Last Synced" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最終同期"
+          }
+        }
+      }
+    },
     "Lock Now" : {
       "localizations" : {
         "ja" : {
@@ -307,6 +367,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "バックグラウンドに移ると自動でロックされます"
+          }
+        }
+      }
+    },
+    "Macs without Touch ID unlock with your login password" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch IDのないMacでは、ログインパスワードで解除します"
           }
         }
       }
@@ -371,12 +441,32 @@
         }
       }
     },
+    "OS" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OS"
+          }
+        }
+      }
+    },
     "Open Settings" : {
       "localizations" : {
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "設定を開く"
+          }
+        }
+      }
+    },
+    "Open Window" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ウインドウを開く"
           }
         }
       }
@@ -412,6 +502,7 @@
       }
     },
     "Place your finger on the Home button" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -422,6 +513,7 @@
       }
     },
     "Place your finger on the Touch ID sensor" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -432,11 +524,32 @@
       }
     },
     "Place your finger on the top button" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "トップボタンに指をのせてください"
+          }
+        }
+      }
+    },
+    "QR Code" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QRコード"
+          }
+        }
+      }
+    },
+    "QR code of the IDFA" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDFAのQRコード"
           }
         }
       }
@@ -561,6 +674,16 @@
         }
       }
     },
+    "Tap to show all digits" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タップで全桁を表示"
+          }
+        }
+      }
+    },
     "The IDFA of all your devices will be removed from iCloud. Devices that have sync turned on add theirs again the next time IDFA Vault is opened on them." : {
       "localizations" : {
         "ja" : {
@@ -591,6 +714,16 @@
         }
       }
     },
+    "Tracking" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "トラッキング"
+          }
+        }
+      }
+    },
     "Tracking Allowed" : {
       "localizations" : {
         "ja" : {
@@ -617,6 +750,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "一覧の「IDFA Vault」をオン"
+          }
+        }
+      }
+    },
+    "Unlock IDFA Vault to change settings." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定を変えるには、IDFA Vaultのロックを解除してください。"
           }
         }
       }
@@ -702,6 +845,7 @@
       }
     },
     "Verifying with Optic ID…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -746,7 +890,17 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iCloud · %@に同期"
+            "value" : "iCloud · 最終同期 %@"
+          }
+        }
+      }
+    },
+    "⌘C to copy" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘C でコピー"
           }
         }
       }

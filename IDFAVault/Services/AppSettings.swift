@@ -10,6 +10,9 @@ import Observation
 
 @Observable
 final class AppSettings {
+    /// 「画面収録・ミラーリング中は隠す」の保存先（UI テストで切るときに使う）
+    static let hidesWhileCapturingKey = Key.hidesWhileCapturing
+
     private enum Key {
         static let autoLock = "settings.autoLock"
         static let hidesWhileCapturing = "settings.hidesWhileCapturing"

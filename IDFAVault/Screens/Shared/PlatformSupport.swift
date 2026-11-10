@@ -86,12 +86,12 @@ private struct SceneCaptureReader: UIViewRepresentable {
 #endif
 
 enum SystemSettings {
-    /// このアプリの設定（トラッキングの許可）を開く URL
+    /// このアプリの設定（トラッキングの許可）を開く URL。macOS のシステム設定にはトラッキングの項目が無いので nil
     static var appSettingsURL: URL? {
         #if canImport(UIKit)
         URL(string: UIApplication.openSettingsURLString)
         #else
-        URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Advertising")
+        nil
         #endif
     }
 }
