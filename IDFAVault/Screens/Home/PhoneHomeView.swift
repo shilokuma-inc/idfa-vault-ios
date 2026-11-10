@@ -121,6 +121,7 @@ struct TrackingDeniedSection: View {
             Text("You can still see the IDFA of your other devices.")
                 .font(.caption)
                 .foregroundStyle(HeatTint.tertiaryText)
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity)
                 .multilineTextAlignment(.center)
         }
@@ -143,6 +144,7 @@ private struct StepRow: View {
             Text(text)
                 .font(.subheadline)
                 .lineSpacing(3)
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 16)

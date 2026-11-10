@@ -88,23 +88,27 @@ struct OwnIdentifierCard: View {
             Text("Copied values are cleared from the clipboard after 60 seconds")
                 .font(.caption)
                 .foregroundStyle(HeatTint.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
         } else if !model.supportsOwnIdentifier {
             Text("This platform doesn't provide the advertising identifier (IDFA) to apps.")
                 .font(.subheadline)
                 .foregroundStyle(HeatTint.text.opacity(0.9))
                 .lineSpacing(3)
+                .fixedSize(horizontal: false, vertical: true)
         } else {
             switch model.trackingStatus {
             case .denied, .restricted:
                 Text("Tracking isn't allowed, so the system returns all zeros. To see your actual IDFA, allow tracking.")
                     .font(.subheadline)
                     .foregroundStyle(HeatTint.text.opacity(0.9))
-                    .lineSpacing(3)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             case .notDetermined:
                 Text("Allow tracking to show this device's IDFA. It is only shown on screen and never used for advertising.")
                     .font(.subheadline)
                     .foregroundStyle(HeatTint.text.opacity(0.9))
-                    .lineSpacing(3)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 Button {
                     Task { await model.requestTrackingIfNeeded() }
                 } label: {
@@ -116,6 +120,7 @@ struct OwnIdentifierCard: View {
                 Text("This device returned an all-zero IDFA, so there is nothing to show.")
                     .font(.subheadline)
                     .foregroundStyle(HeatTint.text.opacity(0.9))
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }

@@ -17,6 +17,11 @@
 
 - 署名せずに作った archive を Export すると、archive の署名に無い entitlement（iCloud）は profile にあっても付かない。`Tools/embed_archive_entitlements.py` で archive の .app にアドホック署名で埋め込んでから Export する（ask-hub-apple の push と同じ。2026-11-10）
 
+## ローカライズ
+
+- iOS の設定の「App からのトラッキング要求を許可」の各言語の表記は、Simulator のランタイムの `System/Library/PrivateFrameworks/Settings/PrivacySettingsUI.framework/<言語>.lproj/Privacy.strings` の `ALLOW_ASK` にある。「プライバシーとセキュリティ」「トラッキング」は `System/Library/PreferenceBundles/PrivacyAndSecuritySettings.bundle` の `Localizable.strings`。iOS 26.5 の日本語は「アプリからのトラッキング要求を許可」（「App」ではない）（2026-11-10）
+- 縦に `fixedSize` した `Text` でも、行の終わりがちょうど幅いっぱいになる文（iPhone SE のドイツ語の未許可の説明）で、高さが 1 行少なく見積もられて末尾が「…」になった。言語を足したら、iPhone SE で長い文の画面を全言語で撮って確かめ、切れたら文言を少し変える（2026-11-10）
+
 ## プラットフォーム
 
 - visionOS の SDK には AdSupport（`ASIdentifierManager`）が無く、visionOS のネイティブのアプリは自分の IDFA を取得できない。実行環境には AdSupport.framework があるが、iPad の互換アプリ（Designed for iPad）用。AppTrackingTransparency は SDK にある（2026-11-10）

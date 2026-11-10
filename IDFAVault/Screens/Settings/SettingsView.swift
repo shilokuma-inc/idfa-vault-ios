@@ -206,10 +206,12 @@ struct SettingLabel: View {
             Text(title)
                 .font(.callout)
                 .foregroundStyle(HeatTint.text)
+                .fixedSize(horizontal: false, vertical: true)
             if let detail {
                 Text(detail)
                     .font(.caption)
                     .foregroundStyle(HeatTint.tertiaryText)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
