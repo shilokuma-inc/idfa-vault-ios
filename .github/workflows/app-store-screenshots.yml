@@ -323,6 +323,8 @@ jobs:
           LANGUAGES: ${{ inputs.languages }}
           APP_VERSION: ${{ inputs.app_version }}
           MISSING_LOCALES: ${{ inputs.missing_locales }}
+          # Apple 側の取り込みが 5 分を超えることがある（2026-11-10 に iPhone 6.9 inch・iPad 13 inch で止まった）
+          SCREENSHOT_DELIVERY_TIMEOUT: 1200
         run: |
           set -euo pipefail
           # PyJWT は標準では入っていないので、この実行かぎりの venv に入れる
