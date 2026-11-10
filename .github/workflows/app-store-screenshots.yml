@@ -112,6 +112,8 @@ jobs:
             exit 1
           fi
           read -r path branch < <(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$FROM_RUN" --jq '"\(.path) \(.head_branch)"')
+          # 呼び出されたワークフローなどでは path が <ファイル>@<ref> になるので、@ から後ろを外して比べる
+          path="${path%%@*}"
           # 反映するのは、このワークフローがリリースのときに撮った画像だけ
           if [[ "$path" != ".github/workflows/app-store-screenshots.yml" || "$branch" != release/* ]]; then
             echo "::error::from_run は release/** で実行したこのワークフローの ID にしてください（${FROM_RUN}: ${path} / ${branch}）"
@@ -430,7 +432,8 @@ jobs:
     needs: plan
     if: ${{ needs.plan.outputs.committed == 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Mac・visionOS を 1 つずつ反映し、それぞれ取り込みを 20 分（SCREENSHOT_DELIVERY_TIMEOUT）まで待つぶん
+    timeout-minutes: 50
 
     steps:
       - name: Checkout
