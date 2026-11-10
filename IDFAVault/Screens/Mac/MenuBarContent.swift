@@ -98,7 +98,8 @@ struct MenuBarContent: View {
 
     // MARK: - 解除中
 
-    @ViewBuilder private var unlockedContent: some View {
+    /// この Mac の IDFA の板（自分の IDFA を取れるときだけ）
+    @ViewBuilder private var ownIngot: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(verbatim: "THIS MAC")
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
@@ -123,6 +124,19 @@ struct MenuBarContent: View {
         .padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .ingotBackground(chamfer: 14, rimWidth: 5)
+    }
+
+    @ViewBuilder private var unlockedContent: some View {
+        if model.supportsOwnIdentifier {
+            ownIngot
+        } else {
+            // Mac は自分の IDFA を取れないので、iPhone・iPad の IDFA だけを出す
+            Text("macOS doesn't provide the IDFA to Mac apps.")
+                .font(.system(size: 11))
+                .foregroundStyle(HeatTint.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 4)
+        }
 
         Text(verbatim: "SAME APPLE ID")
             .font(.system(size: 10, weight: .bold, design: .monospaced))
@@ -132,9 +146,7 @@ struct MenuBarContent: View {
             .padding(.top, 4)
 
         if model.devices.otherDevices.isEmpty {
-            Text(model.devices.status == .noAccount
-                 ? "Sign in to iCloud to see the IDFA of your other devices."
-                 : "No other devices yet. Open IDFA Vault on your other devices signed in with the same Apple ID.")
+            Text(emptyMessage)
                 .font(.system(size: 11))
                 .foregroundStyle(HeatTint.tertiaryText)
                 .fixedSize(horizontal: false, vertical: true)
@@ -169,6 +181,15 @@ struct MenuBarContent: View {
         .foregroundStyle(HeatTint.text.opacity(0.8))
         .padding(.horizontal, 4)
         .padding(.top, 2)
+    }
+
+    private var emptyMessage: LocalizedStringResource {
+        if model.devices.status == .noAccount {
+            return "Sign in to iCloud to see the IDFA of your other devices."
+        }
+        return model.supportsOwnIdentifier
+            ? "No other devices yet. Open IDFA Vault on your other devices signed in with the same Apple ID."
+            : "No iPhone or iPad yet. Open IDFA Vault on your iPhone or iPad signed in with the same Apple ID."
     }
 
     private func menuRow(_ device: DeviceRecord) -> some View {

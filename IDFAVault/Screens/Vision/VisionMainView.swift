@@ -120,7 +120,7 @@ struct VisionMainView: View {
         } else if devices.otherDevices.isEmpty {
             SyncMessagePlate(
                 systemImage: "icloud",
-                text: "No other devices yet. Open IDFA Vault on your other devices signed in with the same Apple ID.",
+                text: "No iPhone or iPad yet. Open IDFA Vault on your iPhone or iPad signed in with the same Apple ID.",
                 showsProgress: devices.status == .idle
             )
         } else {

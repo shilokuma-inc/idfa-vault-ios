@@ -74,13 +74,18 @@ enum DeviceSelection: Hashable {
 
 struct DeviceBrowserView: View {
     @Environment(AppModel.self) private var model
-    @State private var selection: DeviceSelection = .own
+    /// ユーザーが選んだ端末。まだ選んでいなければ nil（defaultSelection を使う）
+    @State private var selection: DeviceSelection?
     @State private var showsSettings = ScreenshotDemo.scene == .settings
     var metrics: BrowserMetrics = .current
 
     var body: some View {
         HStack(spacing: metrics.floatsSidebar ? 32 : 0) {
-            DeviceSidebar(selection: $selection, showsSettings: $showsSettings, metrics: metrics)
+            DeviceSidebar(
+                selection: Binding(get: { resolvedSelection }, set: { selection = $0 }),
+                showsSettings: $showsSettings,
+                metrics: metrics
+            )
             DeviceDetailView(selection: resolvedSelection, metrics: metrics)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -93,12 +98,20 @@ struct DeviceBrowserView: View {
         }
     }
 
-    /// 選んでいた端末が一覧から消えたら（すべて削除など）、この端末に戻す
+    /// 選んでいた端末が一覧から消えたら（すべて削除など）、最初に選ぶ端末に戻す
     private var resolvedSelection: DeviceSelection {
         if case .other(let id) = selection, !model.devices.otherDevices.contains(where: { $0.id == id }) {
-            return .own
+            return defaultSelection
         }
-        return selection
+        return selection ?? defaultSelection
+    }
+
+    /// 最初に選ぶ端末。自分の IDFA を取れない Mac では、iPhone・iPad があればそれを選んでおく
+    private var defaultSelection: DeviceSelection {
+        if !model.supportsOwnIdentifier, let first = model.devices.otherDevices.first {
+            return .other(first.id)
+        }
+        return .own
     }
 
     /// ⌘C でコピーする IDFA（Mac）
@@ -230,9 +243,13 @@ private struct DeviceSidebar: View {
     }
 
     private var emptyMessage: LocalizedStringResource {
-        model.devices.status == .noAccount
-            ? "Sign in to iCloud to see the IDFA of your other devices."
-            : "No other devices yet. Open IDFA Vault on your other devices signed in with the same Apple ID."
+        if model.devices.status == .noAccount {
+            return "Sign in to iCloud to see the IDFA of your other devices."
+        }
+        // 自分の IDFA を取れない Mac では、iPhone・iPad で開けば出ることを伝える
+        return model.supportsOwnIdentifier
+            ? "No other devices yet. Open IDFA Vault on your other devices signed in with the same Apple ID."
+            : "No iPhone or iPad yet. Open IDFA Vault on your iPhone or iPad signed in with the same Apple ID."
     }
 }
 
