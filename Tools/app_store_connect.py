@@ -72,6 +72,17 @@ class ApiError(RuntimeError):
         self.status = status
 
 
+#: 待っているあいだの状態の問い合わせで、問い合わせ直してよい HTTP のステータス（混雑・一時的なサーバーの不調）
+TRANSIENT_STATUSES = {429, 500, 502, 503, 504}
+
+
+def is_transient(error: Exception) -> bool:
+    """状態の問い合わせの失敗が一時的なもの（時間切れ・接続の失敗・429 / 5xx）か。"""
+    if isinstance(error, ApiError):
+        return error.status in TRANSIENT_STATUSES
+    return isinstance(error, (TimeoutError, urllib.error.URLError))
+
+
 class AppStoreConnect:
     def __init__(self, key_id: str, issuer_id: str, private_key: str, dry_run: bool = False):
         self.key_id = key_id
@@ -327,6 +338,15 @@ class AppStoreConnect:
         )
         return sets[0]["id"] if sets else None
 
+    def set_screenshots(self, set_id: str) -> list[dict]:
+        """セットに載っているスクリーンショット（App Store に並ぶ順）。"""
+        return self.get_all(f"/v1/appScreenshotSets/{set_id}/appScreenshots")
+
+    @staticmethod
+    def checksum(path: Path) -> str:
+        """App Store Connect の sourceFileChecksum と同じ MD5。"""
+        return hashlib.md5(path.read_bytes()).hexdigest()
+
     def create_set(self, localization_id: str, display_type: str) -> str:
         if self.dry_run:
             return "dry-run"
@@ -388,7 +408,7 @@ class AppStoreConnect:
                     "id": screenshot_id,
                     "attributes": {
                         "uploaded": True,
-                        "sourceFileChecksum": hashlib.md5(data).hexdigest(),
+                        "sourceFileChecksum": self.checksum(path),
                     },
                 }
             },
@@ -404,36 +424,44 @@ class AppStoreConnect:
             {"data": [{"type": "appScreenshots", "id": i} for i in screenshot_ids]},
         )
 
-    def wait_for_delivery(self, screenshot_ids: list[str]) -> None:
-        """Apple 側の取り込みが終わるまで待つ。失敗していればここで気づける。"""
-        if self.dry_run:
+    def wait_for_delivery(self, screenshots: dict[str, str]) -> None:
+        """Apple 側の取り込みが終わるまで待つ。失敗していればここで気づける。
+
+        screenshots は ID → 表示名（言語/ファイル名）。全言語ぶんを上げてから 1 回で待つ。
+        1 言語ずつ待つと、Apple 側の処理が遅い日は 1 言語目で上限に達し、残りの言語が上がらない（2026-11-10）。
+        """
+        if self.dry_run or not screenshots:
             return
+        print(f"  取り込みを待ちます: {len(screenshots)} 枚（上限 {DELIVERY_TIMEOUT} 秒）")
         deadline = time.time() + DELIVERY_TIMEOUT
-        pending = list(screenshot_ids)
+        pending = dict(screenshots)
+        states: dict[str, str] = {}
         while pending and time.time() < deadline:
-            still_pending = []
-            for screenshot_id in pending:
+            still_pending = {}
+            for screenshot_id, label in pending.items():
                 try:
                     attributes = self.get(f"/v1/appScreenshots/{screenshot_id}")["data"]["attributes"]
-                except (TimeoutError, urllib.error.URLError) as error:
-                    # 状態の問い合わせが一時的に時間切れになっても、アップロードは済んでいる。期限まで問い合わせ直す
-                    print(f"  取り込みの状態を読めませんでした（{error}）。問い合わせ直します")
-                    still_pending.append(screenshot_id)
+                except (TimeoutError, urllib.error.URLError, ApiError) as error:
+                    # 状態の問い合わせが一時的に失敗しても、アップロードは済んでいる。期限まで問い合わせ直す
+                    if not is_transient(error):
+                        raise
+                    print(f"  {label} の取り込みの状態を読めませんでした（{error}）。問い合わせ直します")
+                    still_pending[screenshot_id] = label
                     continue
                 state = attributes.get("assetDeliveryState") or {}
                 if state.get("errors"):
-                    raise SystemExit(
-                        f"{attributes.get('fileName')} の取り込みに失敗しました: {state['errors']}"
-                    )
+                    raise SystemExit(f"{label} の取り込みに失敗しました: {state['errors']}")
                 if state.get("state") != "COMPLETE":
-                    still_pending.append(screenshot_id)
+                    still_pending[screenshot_id] = label
+                    states[screenshot_id] = state.get("state") or "?"
             pending = still_pending
             if pending:
-                time.sleep(5)
+                time.sleep(10)
         if pending:
+            listed = "\n".join(f"  {label}（{states.get(i, '?')}）" for i, label in pending.items())
             raise SystemExit(
-                f"{len(pending)} 枚の取り込みが {DELIVERY_TIMEOUT} 秒で終わりませんでした。"
-                "App Store Connect の画面で状態を確認してください。"
+                f"{len(pending)} 枚の取り込みが {DELIVERY_TIMEOUT} 秒で終わりませんでした。\n{listed}\n"
+                "上げた画像はそのまま残しています。同じ画像で流し直すと、上げ直さずに取り込みの完了を待ちます。"
             )
 
 

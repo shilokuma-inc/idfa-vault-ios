@@ -214,6 +214,7 @@ App Store のプロダクトページに載せるものは、`AppStore/` の JSO
   - Mac: Release でビルドしたアプリを `-screenshot-demo -screenshot-scene <名前> -AppleLanguages "(en)"` で起動し、ウインドウを `screencapture -o -l <ウインドウ番号>` で撮ります。撮れる大きさは 2360x1480 なので、アプリの背景色の上に中央寄せで置き、2880x1800 にします
   - visionOS: Simulator で同じ起動引数を付けて開き、`xcrun simctl io <UDID> screenshot` で撮ります（3840x2160）。ウインドウが小さく写るので、中央を 1.5 倍に寄せます
   - 反映は `release/**` で撮るときに一緒に行います。撮らずに置いた画像だけを反映するときは、入力 `committed_only` をオンにします（どのブランチでも動きます）
+- 反映だけが失敗したとき（Apple 側の取り込みが 20 分で終わらないなど）は、撮り直さずに、入力 `from_run` にその実行の ID を入れて流し直します。その実行の artifact を反映し、同じ画像が載っている言語は上げ直さずに取り込みの完了を待ちます（どのブランチからでも動きます。撮影元は `release/**` の実行に限ります）
 
 **名前・説明文・最新情報**
 
