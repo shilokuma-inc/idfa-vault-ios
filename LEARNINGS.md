@@ -22,6 +22,7 @@
 - 版に言語（`appStoreVersionLocalizations`）を足すと、App 情報の同じ言語（`appInfoLocalizations`）も App Store Connect が作る。続けて App 情報の言語を POST すると `409 ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE` になる（2026-11-10）
 - Apple 側の画像の取り込み（スクリーンショットの `assetDeliveryState`、Asset Library の画像の `state`）は、混む日は 1 枚で 20 分を超える。1 言語・1 枚ずつ待つと最初の 1 枚で上限に達して残りが上がらないので、全部を上げてからまとめて待ち、流し直したら上げ直さずに続きから待つ（スクリーンショットは `sourceFileChecksum`、クリエイティブは参照名に入れたハッシュで同じ画像か見分ける）（2026-11-10）
 - Asset Library の画像の参照名（`referenceName`）はライブラリの中で一意。途中で失敗した実行の画像が残っていると、同じ参照名の POST が `409 ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE` になる（2026-11-10）
+- ASC API は、期限内（作ってから 4 分）のトークンでも、まれに `401 NOT_AUTHORIZED` を返す。36 枚の取り込みの状態を 10 秒ごとに問い合わせているときに、PATCH と GET の両方で出た。トークンを作り直して 1 回だけ送り直し、待ちの問い合わせは 30 秒おきにする（2026-11-10）
 
 ## ローカライズ
 
