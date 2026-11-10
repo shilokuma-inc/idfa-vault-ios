@@ -2801,6 +2801,76 @@
         }
       }
     },
+    "No iPhone or iPad yet. Open IDFA Vault on your iPhone or iPad signed in with the same Apple ID." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch kein iPhone oder iPad. Öffne IDFA Vault auf deinem iPhone oder iPad, das mit derselben Apple-ID angemeldet ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todavía no hay ningún iPhone ni iPad. Abre IDFA Vault en tu iPhone o iPad con el mismo Apple ID."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun iPhone ni iPad pour le moment. Ouvrez IDFA Vault sur votre iPhone ou iPad connecté avec le même identifiant Apple."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Belum ada iPhone atau iPad. Buka IDFA Vault di iPhone atau iPad yang masuk dengan Apple ID yang sama."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ancora nessun iPhone o iPad. Apri IDFA Vault su un iPhone o iPad collegato allo stesso ID Apple."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "まだiPhoneやiPadはありません。同じApple IDでサインインしているiPhoneやiPadでIDFA Vaultを開いてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 iPhone이나 iPad가 없습니다. 같은 Apple ID로 로그인한 iPhone이나 iPad에서 IDFA Vault를 여십시오."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ainda não há iPhone nem iPad. Abra o IDFA Vault no seu iPhone ou iPad com o mesmo ID Apple."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone и iPad пока нет. Откройте IDFA Vault на iPhone или iPad, где выполнен вход с тем же Apple ID."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有 iPhone 或 iPad。请在登录了同一 Apple ID 的 iPhone 或 iPad 上打开 IDFA Vault。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚無 iPhone 或 iPad。請在登入相同 Apple ID 的 iPhone 或 iPad 上打開 IDFA Vault。"
+          }
+        }
+      }
+    },
     "No other devices yet. Open IDFA Vault on your other devices signed in with the same Apple ID." : {
       "localizations" : {
         "de" : {
@@ -6437,6 +6507,146 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "iCloud · 上次同步：%@"
+          }
+        }
+      }
+    },
+    "macOS doesn't provide the IDFA to Mac apps." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS stellt Mac-Apps die IDFA nicht zur Verfügung."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS no proporciona el IDFA a las apps de Mac."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS ne fournit pas l’IDFA aux apps Mac."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS tidak memberikan IDFA kepada app Mac."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS non fornisce l’IDFA alle app per Mac."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOSでは、アプリはIDFAを取得できません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS는 Mac 앱에 IDFA를 제공하지 않습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O macOS não fornece o IDFA aos apps para Mac."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS не предоставляет IDFA приложениям для Mac."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 不向 Mac App 提供 IDFA。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 不會向 Mac App 提供 IDFA。"
+          }
+        }
+      }
+    },
+    "macOS doesn't provide the advertising identifier (IDFA) to Mac apps. You can see and copy the IDFA of your iPhone and iPad in the sidebar." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS stellt Mac-Apps die Werbe-ID (IDFA) nicht zur Verfügung. In der Seitenleiste kannst du die IDFA deines iPhone und iPad sehen und kopieren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS no proporciona el identificador de publicidad (IDFA) a las apps de Mac. En la barra lateral puedes ver y copiar el IDFA de tu iPhone y tu iPad."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS ne fournit pas l’identifiant publicitaire (IDFA) aux apps Mac. Vous pouvez voir et copier l’IDFA de votre iPhone et de votre iPad dans la barre latérale."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS tidak memberikan pengenal iklan (IDFA) kepada app Mac. Anda dapat melihat dan menyalin IDFA iPhone dan iPad di bar samping."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS non fornisce l’identificatore pubblicitario (IDFA) alle app per Mac. Nella barra laterale puoi vedere e copiare l’IDFA di iPhone e iPad."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOSでは、アプリは広告識別子（IDFA）を取得できません。iPhoneとiPadのIDFAはサイドバーから確認・コピーできます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS는 Mac 앱에 광고 식별자(IDFA)를 제공하지 않습니다. 사이드바에서 iPhone과 iPad의 IDFA를 확인하고 복사할 수 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O macOS não fornece o identificador de publicidade (IDFA) aos apps para Mac. Na barra lateral, você pode ver e copiar o IDFA do seu iPhone e iPad."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS не предоставляет рекламный идентификатор (IDFA) приложениям для Mac. На боковой панели можно посмотреть и скопировать IDFA iPhone и iPad."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 不向 Mac App 提供广告标识符（IDFA）。你可以在边栏中查看并拷贝 iPhone 和 iPad 的 IDFA。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 不會向 Mac App 提供廣告識別碼（IDFA）。你可以在側邊欄查看並拷貝 iPhone 和 iPad 的 IDFA。"
           }
         }
       }

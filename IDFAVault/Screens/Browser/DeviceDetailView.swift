@@ -93,7 +93,12 @@ struct DeviceDetailView: View {
 
     private var ownUnavailableMessage: LocalizedStringResource {
         if !model.supportsOwnIdentifier {
+            #if os(macOS)
+            // swiftlint:disable:next line_length
+            return "macOS doesn't provide the advertising identifier (IDFA) to Mac apps. You can see and copy the IDFA of your iPhone and iPad in the sidebar."
+            #else
             return "This platform doesn't provide the advertising identifier (IDFA) to apps."
+            #endif
         }
         switch model.trackingStatus {
         case .notDetermined:

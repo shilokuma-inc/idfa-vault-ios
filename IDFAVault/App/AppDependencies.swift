@@ -347,9 +347,9 @@ final class StubDeviceSync: DeviceSyncing {
                 updatedAt: now.addingTimeInterval(-120)
             ),
             DeviceRecord(
-                id: "demo-mac",
-                name: "MacBook Pro",
-                platform: .macOS,
+                id: "demo-iphone-15",
+                name: "iPhone 15",
+                platform: .iOS,
                 identifier: AdvertisingIdentifier("C47D2E10-93AB-4F61-B8D2-5E0A7C3F1B66"),
                 trackingStatus: .authorized,
                 updatedAt: now.addingTimeInterval(-3_600)

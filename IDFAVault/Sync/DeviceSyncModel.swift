@@ -82,8 +82,9 @@ final class DeviceSyncModel {
                 try await service.save(own)
             }
             let records = try await service.fetchAll()
+            // Mac・visionOS は IDFA を取れないので、前の版が書いたレコードが残っていても出さない
             otherDevices = records
-                .filter { $0.id != ownDeviceID }
+                .filter { $0.id != ownDeviceID && $0.platform.providesAdvertisingIdentifier }
                 .sorted { $0.updatedAt > $1.updatedAt }
             lastSyncedAt = now()
             status = .synced
