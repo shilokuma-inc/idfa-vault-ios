@@ -16,6 +16,10 @@
 ## 配布
 
 - 署名せずに作った archive を Export すると、archive の署名に無い entitlement（iCloud）は profile にあっても付かない。`Tools/embed_archive_entitlements.py` で archive の .app にアドホック署名で埋め込んでから Export する（ask-hub-apple の push と同じ。2026-11-10）
+- App ID の iCloud を有効にしただけで、コンテナを割り当てていないと、API Key の Export（`-allowProvisioningUpdates`）が `exportArchive Authentication failed` → `No profiles for '<Bundle ID>' were found` で止まる（entitlement の確認より手前）。コンテナの作成と割り当ては API に無いので Web で行う。割り当てた後は同じ鍵で iOS・macOS・visionOS とも通った（2026-11-10）
+- ASC API の Bundle ID は `platform: UNIVERSAL` で登録でき、その App ID で iOS（IPA）・macOS（pkg）・visionOS（IPA）の Export とアップロードが通った（2026-11-10）
+- 作ったばかりのアプリでは、`/v1/apps/<id>/appPriceSchedule` は未設定でもアプリと同じ ID を返し、その `manualPrices` が 404 になる。配信状況（`appAvailabilityV2` → `territoryAvailabilities`）も 404 は未設定として扱う（2026-11-10）
+- 版に言語（`appStoreVersionLocalizations`）を足すと、App 情報の同じ言語（`appInfoLocalizations`）も App Store Connect が作る。続けて App 情報の言語を POST すると `409 ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE` になる（2026-11-10）
 
 ## ローカライズ
 
