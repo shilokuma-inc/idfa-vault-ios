@@ -155,6 +155,8 @@ Upload ワークフローは、アップロードの前に TestFlight の内部�
 - Build は 1 つのジョブで iOS・macOS・visionOS を順にビルドします。UI テストを流すときは iOS Simulator でテストし、macOS と visionOS Simulator はビルドだけ確かめます。作業ブランチでは iOS もビルドだけにし、Unit テストを macOS で流します（Simulator の起動を待たないため）
 - Archive / Upload は iOS → macOS → visionOS の順に 1 つずつ流します（macOS ランナーの同時実行枠を 1 つしか使わないため）。iOS・visionOS は IPA、macOS は pkg を Export します。前のプラットフォームが失敗しても次は流します
 - Upload は Archive → Export を含むため、`develop` / `release/**` では Archive を別途実行しません
+- Upload はブランチをまたいで 1 本ずつ流します。`develop` と `release/**` に続けてマージしても、後の Upload は先の Upload が終わってから始まります。ビルド番号は Xcode が App Store Connect の最新ビルドを見て決めるため、並べて流すと同じ番号を選び、片方のアップロードが失敗します
+- 順番を待っている Upload（状態は pending）は取り消さず、待ち始めた順に流します。同じブランチに続けて push したときも、push ごとに上げます（待てるのは 100 本まで）
 - Archive / Upload は Actions タブから手動でも実行できます（Run workflow）。作業ブランチを TestFlight で確認したいときは、Upload を手動実行してそのブランチを選びます
 - リポジトリ変数（Settings → Secrets and variables → Actions → Variables）に `ENABLE_DELIVERY=false` を設定すると Upload をスキップします（Archive は App Store Connect にアプリが無くても通るため止めません）。テンプレートリポジトリ自身はこの設定でアップロードを止めています。テンプレートから作成したリポジトリには引き継がれないため、何もしなければ従来どおり実行されます
 - macOS・visionOS だけを止めたいときは、リポジトリ変数 `ENABLE_MACOS_DELIVERY=false` / `ENABLE_VISIONOS_DELIVERY=false` を設定します（Archive・Upload の両方で飛ばします）
