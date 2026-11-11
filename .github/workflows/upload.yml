@@ -13,11 +13,17 @@ on:
 permissions:
   contents: read
 
+# ブランチをまたいで run を 1 本ずつ流す。ビルド番号は Xcode が App Store Connect の最新ビルドを見て決めるため、
+# develop と release/** の run が並ぶと同じ番号を選んで片方のアップロードが失敗する。直前に上げたビルドはすぐには
+# 数えられず、同じプラットフォームのアップロードが続くと重ならなくても失敗する（LEARNINGS.md）ので、
+# プラットフォームごとではなく run ごとに並べ、あいだに後の run の archive（数分）を挟む。
+# 既定の待機は 1 本だけで、3 本目が来ると待機中の run が通知なく取り消されるため、queue: max で 100 本まで待たせる。
 # アップロード途中でキャンセルすると App Store Connect 側に中途半端なビルドが残るため、
-# 実行中のものは完了させる
+# 実行中のものは完了させる（queue: max は cancel-in-progress: true と組み合わせられない）
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}
   cancel-in-progress: false
+  queue: max
 
 jobs:
   # iOS → macOS → visionOS の順に 1 つずつ流す。macOS ランナーの同時実行枠（Organization 全体で 5）を 1 つしか使わないため。
