@@ -6,7 +6,7 @@
 
 自分の端末の IDFA（広告識別子）を、生体認証のうしろで確認・コピーするアプリ **IDFA Vault**（Bundle ID `jp.shilokuma.IDFAVault`）。
 同じ Apple ID の他の端末の IDFA も、CloudKit の非公開データベースで同期して一覧に出す。
-自分の IDFA を取れるのは iPhone・iPad だけ（macOS・visionOS は IDFA を渡さない。LEARNINGS.md）。Mac と visionOS は、同じ iCloud の iPhone・iPad の IDFA を見るだけにし、その OS では取得できないことを画面に出す。トラッキングの許可を求めず、自分のレコードも書かない（2026-11-10 にユーザーが決定）。
+自分の IDFA を取れるのは iPhone・iPad だけ（macOS・visionOS は IDFA を渡さない。LEARNINGS.md）。Mac と visionOS は、同じ iCloud の iPhone・iPad の IDFA を見るだけにし、その OS では取得できないことを画面に出す。トラッキングの許可を求めず、自分のレコードも書かない（2026-11-10 にユーザーが決定）。AppTrackingTransparency・AdSupport の import と許可の文言（`IDFAVault/Info-iOS.plist`）も iOS だけにし、macOS・visionOS のバイナリにリンクしない（リンクしていると、審査で許可のダイアログを探される。2026-11-11）。
 仕様書（IDFA_Vault_SPEC.md）とデザインの原本（design-reference の HTML）はユーザーから渡されたもので、リポジトリには入れていない。食い違えば仕様書が優先する。
 
 方針（仕様書の「競合との違い」。実装で必ず守る）:

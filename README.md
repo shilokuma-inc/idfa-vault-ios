@@ -283,7 +283,7 @@ API が無い・アカウントで一度だけ行うなど、ワークフロー�
 | App Review に関する情報の添付ファイル（実機の画面収録） | API で反映していません。最初の審査では求められることが多いので、上の「審査メモと画面収録」の手順で撮って添付します |
 | App のプライバシー（収集するデータの申告） | API がありません。[IDFAVault/PrivacyInfo.xcprivacy](IDFAVault/PrivacyInfo.xcprivacy) とプライバシーポリシーに合わせて「App のプライバシー」で答え、公開します |
 | 2 つ目以降のバージョンの作成 | 今は App Store Connect の画面で作る運用にしています（「iOS アプリ」の＋）。作らずに `Metadata/App Store` を流すと「編集できる状態のバージョンがありません」で止まります（dry-run は配信中の値と比べます） |
-| ビルドの選択と審査への提出 | リリースの判断なので人が行います。輸出コンプライアンスは [IDFAVault/Info.plist](IDFAVault/Info.plist) の `ITSAppUsesNonExemptEncryption`（`false`）で申告済みなので、聞かれません |
+| ビルドの選択と審査への提出 | リリースの判断なので人が行います。輸出コンプライアンスは [IDFAVault/Info.plist](IDFAVault/Info.plist)（iOS は [IDFAVault/Info-iOS.plist](IDFAVault/Info-iOS.plist)）の `ITSAppUsesNonExemptEncryption`（`false`）で申告済みなので、聞かれません |
 | デジタルサービス法（EU）の取引業者の情報 | アプリごとではなくアカウントで一度だけ行います（「ビジネス」）。登録済みなら不要です |
 | App プレビュー（動画。任意） | ワークフローでは反映していません。載せるときは App Store Connect のメディアマネージャで追加します |
 
