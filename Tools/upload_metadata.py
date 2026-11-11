@@ -19,6 +19,8 @@
     APP_STORE_CONNECT_KEY_ID / APP_STORE_CONNECT_ISSUER_ID / APP_STORE_CONNECT_PRIVATE_KEY_PATH
 
 触るのは **編集できる状態のバージョンと App 情報だけ**。審査中や配信済みのバージョンは対象にしない。
+App 情報は全プラットフォームで共通なので、別のプラットフォームの版が審査待ちだと編集できない（WAITING_FOR_REVIEW など）。
+そのときは止めずに、App 情報の言語には書き込まず差分だけ出し、バージョンの言語と著作権は書き込む（最後に注意も出す）。
 --dry-run は、編集できるバージョンが無ければ、審査中・配信中のバージョンと App 情報の今の値と比べる（書き込みはしない）。
 JSON に書いていない項目（例: 省略した promotionalText）は App Store Connect 側の値をそのまま残す。
 最新情報（whatsNew）はバージョンごとの文言なので、JSON の `whatsNew.version` が反映先のバージョンと
@@ -173,6 +175,28 @@ def split(attributes: dict[str, str]) -> tuple[dict[str, str], dict[str, str]]:
     return version_fields, info_fields
 
 
+def warn(message: str) -> None:
+    """注意を出す。GitHub Actions では、実行の画面に出る警告の注釈にもする。
+
+    注釈（::warning::）は stderr に出す。stdout は Job Summary に貼るログに tee されるので、同じ文が二重に載らないようにするため。
+    """
+    print(f"注意: {message}")
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        print(f"::warning::{message}", file=sys.stderr)
+
+
+def warn_app_info_held(state: str | None, held: list[str], dry_run: bool) -> None:
+    """App 情報が編集できず、差分があるのに書き込まなかったものを最後に知らせる（黙って成功にしない）。"""
+    if not held:
+        return
+    result = "書き込むときも、次の差分は書き込みません" if dry_run else "次の差分は書き込んでいません"
+    warn(
+        f"App 情報が {state} で編集できないので、{result}: {'、'.join(held)}。"
+        "審査待ちの版の審査が終わる（配信されたら次のバージョンを作る）か、審査から取り下げて、"
+        "App 情報が編集できるようになってから流し直してください"
+    )
+
+
 def describe_changes(current: dict, new: dict[str, str]) -> list[str]:
     """現在値から変わる項目を、人が読める形で返す。長い文章は行単位の差分にする。"""
     lines: list[str] = []
@@ -282,14 +306,20 @@ def main() -> int:
     # dry-run は、編集できるバージョンが無くても審査中・配信中の値と比べる（JSON と App Store Connect のずれを見るため）
     version = client.find_version(app["id"], args.app_version, reference=args.dry_run, platform=args.platform)
     version_string = version["attributes"]["versionString"]
-    app_info = client.find_app_info(app["id"], reference=args.dry_run)
+    # App 情報は全プラットフォームで共通なので、別のプラットフォームの版が審査待ちだと編集できない。
+    # そのときも止めずに今の値を読み、App 情報には書き込まずに差分だけ出す（編集できる版には書き込む）
+    app_info = client.find_app_info(app["id"], reference=True)
+    info_state = client.app_info_state(app_info)
+    info_locked = not client.is_app_info_editable(app_info)
     print(f"対象: {app['attributes']['name']} {PLATFORM_NAMES[args.platform]} {version_string} "
           f"({version['attributes']['appStoreState']})")
     if args.dry_run:
         print("--dry-run: App Store Connect には何も書き込みません")
         if not client.is_editable(version):
-            print(f"  注意: 編集できるバージョンが無いので、{version_string} と App 情報"
-                  f"（{app_info['attributes'].get('state')}）の今の値と比べます")
+            print(f"  注意: 編集できるバージョンが無いので、{version_string} と App 情報（{info_state}）の今の値と比べます")
+    if info_locked and client.is_editable(version):
+        print(f"  注意: App 情報が {info_state} で編集できないので（別のプラットフォームの版が審査待ちなど）、"
+              "名前・サブタイトル・プライバシーポリシーの URL は書き込まずに差分だけ出します")
 
     # 最新情報は、書いてあるバージョンが反映先と一致する言語だけに入れる
     for target, attributes in entries:
@@ -305,15 +335,20 @@ def main() -> int:
     # バージョンの言語と App 情報の言語は別々にあるので、どちらが無いかも別々に見る
     plan: list[tuple[Language, dict[str, str], dict | None]] = []
     info_plan: list[tuple[Language, dict[str, str], dict | None]] = []
+    # App 情報が編集できないので、書き込まずに差分だけ出すもの
+    info_held: list[tuple[Language, dict[str, str], dict | None]] = []
     skipped: list[str] = []
     missing_locales: list[str] = []
     problems = []
     for target, attributes in entries:
         version_fields, info_fields = split(attributes)
-        for kind, fields, entry, destination in (
-            (f"バージョン {version_string}", version_fields, available.get(target.store_locale), plan),
-            ("App 情報", info_fields, available_info.get(target.store_locale), info_plan),
-        ):
+        destinations = [(f"バージョン {version_string}", version_fields, available.get(target.store_locale), plan)]
+        # App 情報が編集できないときは、App 情報に無い言語も足せないので、missing_locales の扱いによらず差分だけ出す
+        if info_locked:
+            info_held.append((target, info_fields, available_info.get(target.store_locale)))
+        else:
+            destinations.append(("App 情報", info_fields, available_info.get(target.store_locale), info_plan))
+        for kind, fields, entry, destination in destinations:
             if entry is None:
                 if args.missing_locales == "skip":
                     print(f"  飛ばす — {target.language}: {target.store_locale} が {kind} にありません")
@@ -406,6 +441,21 @@ def main() -> int:
                 },
             )
 
+    held: list[str] = []
+    for target, attributes, localization in info_held:
+        label = f"{target.language} → {target.store_locale}（App 情報）"
+        current = (localization or {}).get("attributes") or {}
+        changes = describe_changes(current, attributes)
+        if not changes:
+            print(f"  {label}: 変更なし")
+            continue
+        missing = "。App 情報にこの言語が無い" if localization is None else ""
+        print(f"  {label}: 書き込まない（App 情報が {info_state} で編集できない{missing}）")
+        for line in changes:
+            print(line)
+        changed = [field for field, value in attributes.items() if (current.get(field) or "") != value]
+        held.append(f"{target.language}（{', '.join(changed)}）")
+
     current_copyright = version["attributes"].get("copyright") or ""
     if current_copyright == copyright_text:
         print("  著作権: 変更なし")
@@ -428,6 +478,7 @@ def main() -> int:
     print(f"完了: {len(written)} 言語")
     if skipped:
         print(f"飛ばした言語: {', '.join(skipped)}")
+    warn_app_info_held(info_state, held, args.dry_run)
     return 0
 
 
