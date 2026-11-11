@@ -7,12 +7,14 @@
 //  自分の IDFA を取れるのは iPhone・iPad だけ。visionOS の SDK には AdSupport が無く、macOS では
 //  トラッキングの許可状態が常に notDetermined のまま（許可のダイアログが出ない）で、IDFA は 0 しか返らない
 //  （Mac の Designed for iPad、Vision Pro の iPad アプリでも同じ。LEARNINGS.md）。
+//  macOS・visionOS では許可を求めないので、AppTrackingTransparency と AdSupport をリンクしない。
+//  リンクしたままだと、審査で「ATT を使うのに許可のダイアログが無い」と判断される（visionOS で 2.1 のリジェクト）。
 //
 
-#if canImport(AdSupport)
+#if os(iOS)
 import AdSupport
-#endif
 import AppTrackingTransparency
+#endif
 
 /// トラッキングの許可状態と IDFA を返すもの。テストとスクリーンショットの撮影では偽物に差し替える
 protocol TrackingProviding {
@@ -37,15 +39,24 @@ struct SystemTrackingProvider: TrackingProviding {
     }
 
     func currentStatus() -> TrackingStatus {
+        #if os(iOS)
         TrackingStatus(ATTrackingManager.trackingAuthorizationStatus)
+        #else
+        // 許可を求めないので決まらないまま（macOS では ATT の許可状態も常に notDetermined だった）
+        .notDetermined
+        #endif
     }
 
     func requestAuthorization() async -> TrackingStatus {
+        #if os(iOS)
         TrackingStatus(await ATTrackingManager.requestTrackingAuthorization())
+        #else
+        .notDetermined
+        #endif
     }
 
     func advertisingIdentifier() -> AdvertisingIdentifier {
-        #if canImport(AdSupport)
+        #if os(iOS)
         AdvertisingIdentifier(uuid: ASIdentifierManager.shared().advertisingIdentifier)
         #else
         .zero
@@ -53,6 +64,7 @@ struct SystemTrackingProvider: TrackingProviding {
     }
 }
 
+#if os(iOS)
 extension TrackingStatus {
     init(_ status: ATTrackingManager.AuthorizationStatus) {
         switch status {
@@ -69,3 +81,4 @@ extension TrackingStatus {
         }
     }
 }
+#endif
