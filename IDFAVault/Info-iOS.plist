@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- iOS（iPhone・iPad）の Info.plist。Info.plist と同じ内容に、トラッキングの許可の文言を足したもの -->
+	<!-- macOS・visionOS は許可を求めず ATT をリンクしないので、文言は iOS にだけ入れる。
+	     INFOPLIST_KEY_NSUserTrackingUsageDescription を [sdk=iphone*] の条件付きで書くと、
+	     macOS・visionOS の Info.plist に空の値で入るため、ファイルを分けている（LEARNINGS.md） -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>IDFA Vault uses this only to show this device's advertising identifier (IDFA) on screen. It is never used for advertising or tracking.</string>
+</dict>
+</plist>
