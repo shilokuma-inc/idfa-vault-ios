@@ -227,24 +227,51 @@ def check_notes(notes, name: str, problems: list[str]) -> str | None:
     return notes
 
 
-def read_notes_file(value, base: Path, problems: list[str]) -> str | None:
-    """review.notesFile（app_info.json からの相対パス）のメモを読む。前後の空白と改行は落とす。"""
+def read_notes_file(value, base: Path, problems: list[str], name: str = "review.notesFile") -> str | None:
+    """review.notesFile など（app_info.json からの相対パス）のメモを読む。前後の空白と改行は落とす。"""
     if not (isinstance(value, str) and value.strip()):
-        problems.append("review.notesFile はファイルのパス（app_info.json からの相対パス）で書く（例: \"review_notes.txt\"）")
+        problems.append(f"{name} はファイルのパス（app_info.json からの相対パス）で書く（例: \"review_notes.txt\"）")
         return None
     path = base / value
     if not path.is_file():
-        problems.append(f"review.notesFile のファイルがありません: {path}")
+        problems.append(f"{name} のファイルがありません: {path}")
         return None
-    return check_notes(path.read_text(encoding="utf-8").strip(), f"review.notesFile（{value}）", problems)
+    return check_notes(path.read_text(encoding="utf-8").strip(), f"{name}（{value}）", problems)
 
 
-def load_review(raw, problems: list[str], base: Path) -> dict:
-    if raw is None:
+def load_platform_notes(value, base: Path, problems: list[str]) -> dict[str, str]:
+    """review.platformNotesFiles（macOS・visionOS の版だけに書き込むメモのファイル）を読む。
+
+    審査の担当者は版（プラットフォーム）ごとに違い、実機の画面収録もプラットフォームごとに求められる。
+    iOS のメモ（notesFile / notes）とは別に書けるようにする。
+    """
+    if not (isinstance(value, dict) and value):
+        problems.append(
+            "review.platformNotesFiles はプラットフォームとメモのファイルの対応で書く"
+            "（例: {\"VISION_OS\": \"review_notes_visionos.txt\"}）"
+        )
         return {}
+    notes_by_platform: dict[str, str] = {}
+    for platform, path in value.items():
+        if platform not in PLATFORM_NAMES or platform == "IOS":
+            problems.append(
+                f"review.platformNotesFiles のプラットフォームは MAC_OS か VISION_OS で書く"
+                f"（iOS のメモは notesFile か notes に書く）: {platform!r}"
+            )
+            continue
+        notes = read_notes_file(path, base, problems, f"review.platformNotesFiles.{platform}")
+        if notes:
+            notes_by_platform[platform] = notes
+    return notes_by_platform
+
+
+def load_review(raw, problems: list[str], base: Path) -> tuple[dict, dict[str, str]]:
+    """審査の情報（iOS の版に書き込む値）と、プラットフォームごとのメモを返す。"""
+    if raw is None:
+        return {}, {}
     if not isinstance(raw, dict):
         problems.append("review はオブジェクトで書く")
-        return {}
+        return {}, {}
     review = without_comment(raw)
     attributes: dict = {}
     if "demoAccountRequired" in review:
@@ -262,13 +289,16 @@ def load_review(raw, problems: list[str], base: Path) -> dict:
         notes = read_notes_file(review["notesFile"], base, problems)
         if notes:
             attributes["notes"] = notes
-    unknown = sorted(set(review) - {"demoAccountRequired", "notes", "notesFile"})
+    platform_notes = (
+        load_platform_notes(review["platformNotesFiles"], base, problems) if "platformNotesFiles" in review else {}
+    )
+    unknown = sorted(set(review) - {"demoAccountRequired", "notes", "notesFile", "platformNotesFiles"})
     if unknown:
         problems.append(
             f"review に知らない項目があります: {', '.join(unknown)}"
             "（連絡先とデモアカウントは JSON に書かず、環境変数か Secrets で渡す）"
         )
-    return attributes
+    return attributes, platform_notes
 
 
 def load_pricing(raw, problems: list[str]) -> dict | None:
@@ -327,11 +357,13 @@ def load(path: Path) -> tuple[dict, list[str]]:
         return {}, [f"{path} が JSON として読めません: {error}"]
 
     problems: list[str] = []
+    review, platform_notes = load_review(raw.get("review"), problems, path.parent)
     config = {
         "categories": load_categories(raw, problems),
         "contentRights": raw.get("contentRightsDeclaration"),
         "ageRating": load_age_rating(raw.get("ageRating"), problems),
-        "review": load_review(raw.get("review"), problems, path.parent),
+        "review": review,
+        "platformNotes": platform_notes,
         "pricing": load_pricing(raw.get("pricing"), problems),
         "availability": load_availability(raw.get("availability"), problems),
         "release": load_release(raw.get("release"), problems),
@@ -341,6 +373,9 @@ def load(path: Path) -> tuple[dict, list[str]]:
     if isinstance(raw.get("review"), dict) and "notesFile" in raw["review"] \
             and "TODO:" in config["review"].get("notes", ""):
         config["placeholders"].append(f"review.notesFile（{raw['review']['notesFile']}）")
+    for platform, notes in platform_notes.items():
+        if "TODO:" in notes:
+            config["placeholders"].append(f"review.platformNotesFiles.{platform}")
     if config["contentRights"] not in CONTENT_RIGHTS:
         problems.append(f"contentRightsDeclaration は {' / '.join(CONTENT_RIGHTS)} のどちらかで書く")
     return config, [f"{path}: {problem}" for problem in problems]
@@ -698,6 +733,8 @@ def main() -> int:
         print(f"  審査の情報: {', '.join(config['review']) or 'なし'}（連絡先は環境変数から）")
         if "notes" in config["review"]:
             print(f"  審査のメモ: {len(config['review']['notes'])} / {REVIEW_NOTES_LIMIT} 字")
+        for platform, notes in config["platformNotes"].items():
+            print(f"  審査のメモ（{PLATFORM_NAMES[platform]} の版）: {len(notes)} / {REVIEW_NOTES_LIMIT} 字")
         print(f"  価格: {'無料（未設定のときだけ）' if config['pricing'] else '書き込まない'}")
         print(f"  配信状況: {'未設定のときだけ' if config['availability'] else '書き込まない'}")
         release = config["release"]
@@ -706,7 +743,11 @@ def main() -> int:
         print("問題なし")
         return 0
 
-    review, notices = review_from_environment(config["review"])
+    review = dict(config["review"])
+    # macOS・visionOS の版は、そのプラットフォームのメモがあればそちらを書き込む（無ければ iOS と同じメモ）
+    if args.platform in config["platformNotes"]:
+        review["notes"] = config["platformNotes"][args.platform]
+    review, notices = review_from_environment(review)
 
     missing_key = [
         name for name, value in
