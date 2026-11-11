@@ -240,11 +240,12 @@ class AppStoreConnect:
 
     @staticmethod
     def app_info_state(info: dict) -> str | None:
-        # state が無い古い応答では、非推奨の appStoreState（バージョンと同じ値）で見る
+        """App 情報の状態。state が無い古い応答では、非推奨の appStoreState（バージョンと同じ値）で見る。"""
         return info["attributes"].get("state") or info["attributes"].get("appStoreState")
 
     @staticmethod
     def is_app_info_editable(info: dict) -> bool:
+        """App 情報が書き換えられる状態か（審査待ち・配信中などは書き換えられない）。"""
         if info["attributes"].get("state"):
             return info["attributes"]["state"] in EDITABLE_APP_INFO_STATES
         return info["attributes"].get("appStoreState") in EDITABLE_STATES
