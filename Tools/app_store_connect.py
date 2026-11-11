@@ -238,35 +238,43 @@ class AppStoreConnect:
             )
         return editable[0]
 
+    @staticmethod
+    def app_info_state(info: dict) -> str | None:
+        # state が無い古い応答では、非推奨の appStoreState（バージョンと同じ値）で見る
+        return info["attributes"].get("state") or info["attributes"].get("appStoreState")
+
+    @staticmethod
+    def is_app_info_editable(info: dict) -> bool:
+        if info["attributes"].get("state"):
+            return info["attributes"]["state"] in EDITABLE_APP_INFO_STATES
+        return info["attributes"].get("appStoreState") in EDITABLE_STATES
+
     def find_app_info(self, app_id: str, reference: bool = False) -> dict:
         """書き換えられる App 情報（appInfos）を返す。
 
         App 情報はバージョンとは別のリソースで、名前・サブタイトル・プライバシーポリシーの URL（言語ごと）と、
         カテゴリ・年齢制限を持つ。次のバージョンを作ると、そのバージョン用の App 情報が「提出準備中」でできる。
+        App 情報は全プラットフォームで共通なので、どれか 1 つの版が審査待ちになると WAITING_FOR_REVIEW になり、
+        ほかのプラットフォームの版が編集できる状態（REJECTED など）でも書き換えられない。
 
-        `reference` を True にすると（dry-run で使う）、書き換えられる App 情報が無いときに止めず、
-        審査中のバージョンの App 情報か、無ければ配信中の App 情報を比べる相手として返す。
+        `reference` を True にすると、書き換えられる App 情報が無いときに止めず、
+        審査中のバージョンの App 情報か、無ければ配信中の App 情報を比べる相手として返す
+        （dry-run と、App 情報が書き換えられなくても版には書き込むときに使う）。
+        返した App 情報が書き換えられるかは `is_app_info_editable` で見る。
         """
         infos = self.get_all(f"/v1/apps/{app_id}/appInfos")
-
-        def state(info: dict) -> str | None:
-            # state が無い古い応答では、非推奨の appStoreState（バージョンと同じ値）で見る
-            return info["attributes"].get("state") or info["attributes"].get("appStoreState")
-
-        def editable(info: dict) -> bool:
-            if info["attributes"].get("state"):
-                return info["attributes"]["state"] in EDITABLE_APP_INFO_STATES
-            return info["attributes"].get("appStoreState") in EDITABLE_STATES
-
-        candidates = [info for info in infos if editable(info)]
+        candidates = [info for info in infos if self.is_app_info_editable(info)]
         if not candidates and reference and infos:
             # 配信中（READY_FOR_DISTRIBUTION）より、審査中など次のバージョン用のものを優先する
             live_states = {"READY_FOR_DISTRIBUTION", "READY_FOR_SALE"}
-            live = [info for info in infos if state(info) in live_states]
-            pending = [info for info in infos if state(info) not in live_states | {"REPLACED_WITH_NEW_INFO"}]
+            live = [info for info in infos if self.app_info_state(info) in live_states]
+            pending = [
+                info for info in infos
+                if self.app_info_state(info) not in live_states | {"REPLACED_WITH_NEW_INFO"}
+            ]
             return (pending or live or infos)[0]
         if not candidates:
-            states = ", ".join(sorted({str(state(info)) for info in infos}))
+            states = ", ".join(sorted({str(self.app_info_state(info)) for info in infos}))
             raise SystemExit(
                 "編集できる状態の App 情報がありません"
                 f"（いまある状態: {states or 'なし'}）。"
