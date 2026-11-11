@@ -234,7 +234,7 @@ App Store のプロダクトページに載せるものは、`AppStore/` の JSO
 | カテゴリ | `primaryCategory`（必須）・`secondaryCategory`・`primarySubcategories` / `secondarySubcategories` | カテゴリの ID（`UTILITIES` など）で書きます。ID が違えば、使える一覧を出して書き込む前に止まります。カテゴリを変えたときは、書いていない古いサブカテゴリを App Store Connect からも外します |
 | コンテンツの権利 | `contentRightsDeclaration` | 第三者のコンテンツを使わないなら `DOES_NOT_USE_THIRD_PARTY_CONTENT` |
 | 年齢制限 | `ageRating` | 質問ごとの回答。テンプレートはすべて「なし」（4+）なので、広告（`advertising`）・ほかの人の投稿（`userGeneratedContent`）などをアプリに合わせて見直します。`Tools/upload_app_info.py` の一覧にある質問が JSON に無いと PR の検査で落ちます。Apple が足した質問は検査では分からないので、審査に出す前に App Store Connect で未回答の質問が無いかを見ます |
-| App Review に関する情報 | `review`（`demoAccountRequired`・`notesFile` か `notes`） | メモは `notesFile` に書いたファイル（既定は [AppStore/review_notes.txt](AppStore/review_notes.txt)）の英文を書き込みます。差分のログには、メモの内容を出さず字数だけを出します（App Store Connect にある今のメモに秘密が入っていても、public リポジトリのログに残らないようにするため）。連絡先とデモアカウントは JSON に書かず、下の Secrets から渡します。値はログに出しません |
+| App Review に関する情報 | `review`（`demoAccountRequired`・`notesFile` か `notes`・`platformNotesFiles`） | メモは `notesFile` に書いたファイル（既定は [AppStore/review_notes.txt](AppStore/review_notes.txt)）の英文を書き込みます。macOS・visionOS の版は、`platformNotesFiles` にファイルがあればそちらを書き込みます。差分のログには、メモの内容を出さず字数だけを出します（App Store Connect にある今のメモに秘密が入っていても、public リポジトリのログに残らないようにするため）。連絡先とデモアカウントは JSON に書かず、下の Secrets から渡します。値はログに出しません |
 | リリースの方法 | `release`（`releaseType`・`phasedRelease`。任意） | 省略すると App Store Connect の値を残します（テンプレートでは省略。既存のアプリに取り込んだときに、手動のリリースが自動に変わらないようにするため）。書くと、バージョンごとに、`MANUAL`（承認後に手動でリリース）か `AFTER_APPROVAL`（承認されたら自動でリリース）と、段階的リリース（7 日かけて自動アップデートの対象を広げる）を使うかを書き込みます。日時を指定するリリースと、始まった段階的リリースは扱いません（App Store Connect の画面で操作します） |
 | 価格 | `pricing` | **App Store Connect で未設定のときだけ**無料にします。設定済みなら触りません |
 | 配信状況 | `availability` | **App Store Connect で未設定のときだけ**、すべての国と地域（`"ALL"`）か指定した国と地域で配信します。設定済みなら触りません |
@@ -263,6 +263,8 @@ App Store のプロダクトページに載せるものは、`AppStore/` の JSO
 
 - 2〜6 は [AppStore/review_notes.txt](AppStore/review_notes.txt) の雛形の `TODO:` を英語で書き換え、`Metadata/App Store` でメモに反映します。UI が英語でなければ、ボタンの文言を原文のまま引用し、角括弧で英訳を添えると、審査の担当者が画面と突き合わせられます
 - 1 の画面収録は API で反映しないので、App Store Connect の「App Review に関する情報」の添付ファイルに付けます。撮る前に、審査に出すビルドを TestFlight で実機に入れ、一度削除してから入れ直して初回起動の状態にします。集中モードで通知を止め、ホーム画面からアプリを起動するところから撮ります
+- 画面収録は**プラットフォームの版ごと**に、その OS の実機で撮って添付します。visionOS の版は、iPhone の動画だけを添付していたので、Vision Pro の実機の動画を求められて戻ってきました（2026-11-11）。macOS・visionOS の版のメモは [AppStore/review_notes_macos.txt](AppStore/review_notes_macos.txt)・[AppStore/review_notes_visionos.txt](AppStore/review_notes_visionos.txt) に分けています（`app_info.json` の `review.platformNotesFiles`）。画面の説明や手順を変えたら、3 つのメモをそろえて直します
+- このアプリは画面収録中に IDFA を隠すので（「Hide During Screen Recording or Mirroring」、既定はオン）、撮る前にアプリの設定でオフにします。動画には本物の IDFA が写るので、URL で公開せず、添付ファイルで渡します
 - アプリ名や説明文に他社の商標（番組名・ゲーム名など）を入れるなら、6 で聞かれます。許諾が無ければ Guideline 5.2.1（知的財産）で名前を変えるよう求められることがあるので、名前を決める段階で判断します
 
 **プロダクトページのヘッダーと検索結果**（[App Store asset best practices](https://developer.apple.com/app-store/asset-best-practices/)）
