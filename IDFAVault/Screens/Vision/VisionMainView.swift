@@ -36,7 +36,7 @@ struct VisionMainView: View {
             .padding(.horizontal, 44)
             .padding(.vertical, 36)
         }
-        .scrollBounceBehavior(.basedOnSize)
+        // 中身が画面に収まっていても引いて更新できるように、バウンスを止めない（.basedOnSize にすると .refreshable が動かない）
         .refreshable {
             await model.refreshDevices()
         }
