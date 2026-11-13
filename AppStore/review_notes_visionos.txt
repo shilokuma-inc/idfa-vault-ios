@@ -1,8 +1,10 @@
 IDFA Vault for Apple Vision Pro - Notes for App Review
 
 1. SCREEN RECORDING
-A screen recording from a physical Apple Vision Pro running the latest visionOS is attached. It starts by launching the app and shows unlocking with Optic ID, the explanation that visionOS doesn't provide the IDFA to apps, the IDFAs of the user's iPhone and iPad synced through iCloud, copying one and showing it as a QR code, settings, and locking the app again. No permission prompts appear except Optic ID.
-Screen recording protection: to protect the IDFA, the app covers its window while the screen is recorded or mirrored ("Hide During Screen Recording or Mirroring", on by default). For this video it was turned off in the app's Settings (the sliders button at the top right). If you record the screen while testing, turn it off before you start recording (while recording, the cover also hides Settings).
+A screen recording from a physical Apple Vision Pro running the latest visionOS is attached. It has two parts.
+- Part 1 starts from a fresh install: launching the app, the Optic ID permission request, unlocking, and the cover that hides the window while the screen is recorded. No App Tracking Transparency prompt appears.
+- Part 2 was recorded after turning that protection off. It shows the explanation that visionOS doesn't provide the IDFA to apps, the IDFAs of the user's other devices synced through iCloud, showing all digits, copying one, showing it as a QR code, settings, and locking and unlocking the app.
+Screen recording protection: to protect the IDFA, the app covers its window while the screen is recorded or mirrored ("Hide During Screen Recording or Mirroring", on by default). It can be turned off in the app's Settings (the sliders button at the top right). If you record the screen while testing, turn it off before you start recording (while recording, the cover also hides Settings).
 The app has no account registration, login, user-generated content, paid content, or In-App Purchases.
 
 2. APP TRACKING TRANSPARENCY
@@ -18,7 +20,7 @@ To protect the identifiers, the app always asks for Optic ID (or the device pass
 No login, account, credentials, or sample files are required.
 1. Launch the app and authenticate with Optic ID (or the passcode).
 2. The window shows "Not Available" and explains that visionOS doesn't provide the IDFA to visionOS apps. No tracking prompt appears.
-3. To see IDFAs, open IDFA Vault on an iPhone or iPad signed in with the same Apple Account and allow tracking there. Its IDFA appears under "SAME APPLE ID" within about 20 seconds (pull down to refresh). Tap a row to show all digits, or use the buttons on the row to copy the IDFA or show it as a QR code.
+3. To see IDFAs, open IDFA Vault on an iPhone or iPad signed in with the same Apple Account and allow tracking there. Its IDFA appears under "SAME APPLE ID" within about 20 seconds (to refresh sooner, pinch and drag the list down). Tap a row to show all digits, or use the buttons on the row to copy the IDFA or show it as a QR code.
 4. In Settings (the sliders button at the top right), change auto-lock, masking, and screen recording protection, or delete all synced data. The lock button next to it locks the app.
 
 5. EXTERNAL SERVICES

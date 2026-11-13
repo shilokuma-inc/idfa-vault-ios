@@ -29,7 +29,11 @@ struct DeviceDetailView: View {
             .frame(maxWidth: 900, alignment: .leading)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+        // iPad では、中身が画面に収まっていても引いて更新できるように、バウンスを止めない（.basedOnSize にすると .refreshable が動かない）。
+        // Mac の ScrollView には引いて更新が無いので、これまでどおり収まっていれば弾ませない
+        #if os(macOS)
         .scrollBounceBehavior(.basedOnSize)
+        #endif
         .refreshable {
             await model.refreshDevices()
         }

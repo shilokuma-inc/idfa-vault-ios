@@ -30,7 +30,7 @@ struct PhoneHomeView: View {
                 .frame(maxWidth: 560)
                 .frame(maxWidth: .infinity)
             }
-            .scrollBounceBehavior(.basedOnSize)
+            // 中身が画面に収まっていても引いて更新できるように、バウンスを止めない（.basedOnSize にすると .refreshable が動かない）
             .refreshable {
                 await model.refreshDevices()
             }
