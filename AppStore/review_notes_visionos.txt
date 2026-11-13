@@ -1,8 +1,10 @@
 IDFA Vault for Apple Vision Pro - Notes for App Review
 
 1. SCREEN RECORDING
-A screen recording from a physical Apple Vision Pro running the latest visionOS is attached. It starts by launching the app and shows unlocking with Optic ID, the explanation that visionOS doesn't provide the IDFA to apps, the IDFAs of the user's iPhone and iPad synced through iCloud, copying one and showing it as a QR code, settings, and locking the app again. No permission prompts appear except Optic ID.
-Screen recording protection: to protect the IDFA, the app covers its window while the screen is recorded or mirrored ("Hide During Screen Recording or Mirroring", on by default). For this video it was turned off in the app's Settings (the sliders button at the top right). If you record the screen while testing, turn it off before you start recording (while recording, the cover also hides Settings).
+A screen recording from a physical Apple Vision Pro running the latest visionOS is attached. It has two parts.
+- Part 1 starts from a fresh install: launching the app, the Optic ID permission request, unlocking, and the cover that hides the window while the screen is recorded. No App Tracking Transparency prompt appears.
+- Part 2 was recorded after turning that protection off. It shows the explanation that visionOS doesn't provide the IDFA to apps, the IDFAs of the user's other devices synced through iCloud, showing all digits, copying one, showing it as a QR code, settings, and locking and unlocking the app.
+Screen recording protection: to protect the IDFA, the app covers its window while the screen is recorded or mirrored ("Hide During Screen Recording or Mirroring", on by default). It can be turned off in the app's Settings (the sliders button at the top right). If you record the screen while testing, turn it off before you start recording (while recording, the cover also hides Settings).
 The app has no account registration, login, user-generated content, paid content, or In-App Purchases.
 
 2. APP TRACKING TRANSPARENCY
