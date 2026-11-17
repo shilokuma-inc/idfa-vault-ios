@@ -34,6 +34,8 @@
     APP_STORE_CONNECT_KEY_ID / APP_STORE_CONNECT_ISSUER_ID / APP_STORE_CONNECT_PRIVATE_KEY_PATH
 
 触るのは **編集できる状態のバージョンと App 情報だけ**。JSON に書いていない項目は App Store Connect 側の値をそのまま残す。
+App 情報は全プラットフォームで共通なので、別のプラットフォームの版が審査待ちだと編集できない（WAITING_FOR_REVIEW など）。
+そのときは止めずに、コンテンツの権利・カテゴリ・年齢制限は書き込まず差分だけ出し、審査の情報とリリースの方法は書き込む（最後に注意も出す）。
 --dry-run は、編集できるバージョンが無ければ、審査中・配信中のバージョンと App 情報の今の値と比べる（書き込みはしない）。
 
 PyJWT が要る（--check では不要）: `python3 -m pip install pyjwt cryptography`
@@ -51,7 +53,7 @@ from typing import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from app_store_config import PLATFORM_NAMES, ROOT, bundle_id
-from upload_metadata import describe_changes
+from upload_metadata import describe_changes, warn_app_info_held
 
 CONFIG_PATH = ROOT / "AppStore" / "app_info.json"
 
@@ -770,30 +772,44 @@ def main() -> int:
         return 0
     # dry-run は、編集できるバージョンが無くても審査中・配信中の値と比べる（JSON と App Store Connect のずれを見るため）
     version = client.find_version(app["id"], args.app_version, reference=args.dry_run, platform=args.platform)
-    app_info = client.find_app_info(app["id"], reference=args.dry_run)
+    # コンテンツの権利・カテゴリ・年齢制限・価格・配信状況はアプリ（App 情報）でプラットフォーム共通なので、iOS の回だけ書く。
+    # 審査の情報とリリースの方法は版ごとにあるので、プラットフォームごとに書く
+    shared = args.platform == "IOS"
+    # App 情報は、別のプラットフォームの版が審査待ちだと編集できない。そのときも止めずに今の値を読み、
+    # App 情報で共通のものは書き込まずに差分だけ出す（版ごとのものは書き込む）。macOS・visionOS の回では使わないので読まない
+    app_info = client.find_app_info(app["id"], reference=True) if shared else None
+    info_state = client.app_info_state(app_info) if app_info else None
+    info_locked = app_info is not None and not client.is_app_info_editable(app_info)
     print(f"対象: {app['attributes']['name']} {PLATFORM_NAMES[args.platform]} {version['attributes']['versionString']} "
           f"({version['attributes']['appStoreState']})")
     if args.dry_run:
         print("--dry-run: App Store Connect には何も書き込みません")
         if not client.is_editable(version):
-            print(f"  注意: 編集できるバージョンが無いので、{version['attributes']['versionString']} と App 情報"
-                  f"（{app_info['attributes'].get('state')}）の今の値と比べます")
+            compared = version["attributes"]["versionString"] + (f" と App 情報（{info_state}）" if app_info else "")
+            print(f"  注意: 編集できるバージョンが無いので、{compared} の今の値と比べます")
+    if info_locked and client.is_editable(version):
+        print(f"  注意: App 情報が {info_state} で編集できないので（別のプラットフォームの版が審査待ちなど）、"
+              "コンテンツの権利・カテゴリ・年齢制限は書き込まずに差分だけ出します")
     for notice in notices:
         print(f"  注意: {notice}")
 
     # 書き込む前にすべての書き込み先の現在値を読み、カテゴリの ID や無料の価格ポイントがあるかを確かめる。
     # 途中で止まって一部だけ書き換わった状態にしないため
     reminders: list[str] = []
-    # コンテンツの権利・カテゴリ・年齢制限・価格・配信状況はアプリ（App 情報）でプラットフォーム共通なので、iOS の回だけ書く。
-    # 審査の情報とリリースの方法は版ごとにあるので、プラットフォームごとに書く
-    shared = args.platform == "IOS"
     steps: list[Step] = []
+    # App 情報が編集できないので、差分があるのに書き込まないもの
+    held: list[str] = []
     if shared:
-        steps.extend([
+        # コンテンツの権利はアプリ（apps）の値だが、App Store Connect の画面では App 情報のページにあるので、App 情報と同じく扱う
+        for label, lines, write in (
             plan_content_rights(client, app, config["contentRights"]),
             plan_categories(client, app_info, config["categories"]),
             plan_age_rating(client, app_info, config["ageRating"]),
-        ])
+        ):
+            if info_locked and write is not None:
+                held.append(label)
+                write = None
+            steps.append((label, lines, write))
     steps.append(plan_review(client, version, review, reminders))
     if config["release"]:
         steps.append(plan_release_type(client, version, config["release"]["releaseType"]))
@@ -804,7 +820,9 @@ def main() -> int:
         steps.append(plan_availability(client, app, config["availability"], reminders))
 
     for label, lines, write in steps:
-        if write is None:
+        if label in held:
+            print(f"  {label}: 書き込まない（App 情報が {info_state} で編集できない）")
+        elif write is None:
             print(f"  {label}: {'変更なし' if not lines else ''}".rstrip())
         else:
             print(f"  {label}: {'書き込む予定' if args.dry_run else '書き込み'}")
@@ -829,6 +847,7 @@ def main() -> int:
     print("審査に出す前に App Store Connect で入力が要るもの:")
     for reminder in reminders:
         print(f"  - {reminder}")
+    warn_app_info_held(info_state, held, args.dry_run)
     return 0
 
 

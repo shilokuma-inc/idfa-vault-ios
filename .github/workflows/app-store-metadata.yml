@@ -15,7 +15,9 @@ name: Metadata/App Store
 # 最新情報（whatsNew）は、JSON の whatsNew.version が反映先のバージョンと一致するときだけ書き込む。
 # テンプレートの仮の文言（TODO:）が残っているあいだは、dry-run でも止まる。
 #
-# 反映先は「編集できる状態のバージョン」だけ。審査中・配信済みのバージョンには触らない。
+# 反映先は「編集できる状態のバージョン」だけ。審査中・配信済みのバージョンには触らない（審査待ちの版のプラットフォームは platforms から外す）。
+# App 情報（名前・サブタイトル・カテゴリ・年齢制限など）は全プラットフォームで共通なので、別のプラットフォームの版が審査待ちだと編集できない。
+# そのときは App 情報だけ書き込まずに差分を出し（warning の注釈も出す）、編集できる版の掲載文と審査の情報は書き込む。
 # dry_run にすると、App Store Connect の現在値との差分だけを出して何も書き込まない。
 # 編集できるバージョンが無いときの dry-run は、審査中・配信中のバージョンと App 情報の値と比べる。
 
@@ -134,7 +136,7 @@ jobs:
           fi
 
           # Bundle ID は Configs/Project.xcconfig から読む（ワークフローに書き写すと二重管理になるため）。
-          # プラットフォームの版ごとに流す（App 情報の言語は共通なので、2 つ目からは「変更なし」になる）
+          # プラットフォームの版ごとに流す（App 情報の言語は共通なので、2 つ目からは「変更なし」になる。App 情報が編集できないときは、どの回も差分だけ出す）
           for platform in ${PLATFORMS//,/ }; do
             .venv/bin/python -u Tools/upload_metadata.py "${options[@]}" --platform "$platform" | tee -a "$RUNNER_TEMP/upload.log"
           done
